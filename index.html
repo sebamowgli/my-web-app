@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14313A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>월요매식회</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F6F5;--surface:#fff;--ink:#14313A;--muted:#5C7279;--line:#D5E0DE;
+  --f-bg:#E3F1FA;--f:#1F6A99;--c-bg:#E4F3DC;--c:#35742A;--r-bg:#F6EBD4;--r:#8A5A12;--t-bg:#E8E6F3;--t:#4B4690;
+  --warn:#B3361F;--warn-bg:#FBE4DE;--soon:#8A5A12;--soon-bg:#F6EBD4;
+  color-scheme:light;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1C20;--surface:#172A30;--ink:#E6F0EE;--muted:#93AAB0;--line:#2A4148;
+    --f-bg:#14303F;--f:#7CC4EE;--c-bg:#1C3319;--c:#9AD68A;--r-bg:#3A2E14;--r:#E5BE72;--t-bg:#26244A;--t:#B5B0F0;
+    --warn:#F2907D;--warn-bg:#40201A;--soon:#E5BE72;--soon-bg:#3A2E14;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1C20;--surface:#172A30;--ink:#E6F0EE;--muted:#93AAB0;--line:#2A4148;
+  --f-bg:#14303F;--f:#7CC4EE;--c-bg:#1C3319;--c:#9AD68A;--r-bg:#3A2E14;--r:#E5BE72;--t-bg:#26244A;--t:#B5B0F0;
+  --warn:#F2907D;--warn-bg:#40201A;--soon:#E5BE72;--soon-bg:#3A2E14;color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:16px;line-height:1.55}
+main{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.6rem;margin:4px 0 2px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 18px}
+.tabs{display:flex;gap:4px;background:var(--line);padding:4px;border-radius:12px;margin-bottom:18px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;padding:10px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--f);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-bottom:14px}
+.step{display:flex;align-items:center;gap:10px}
+.step button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:1.2rem;cursor:pointer}
+.step b{min-width:3.2em;text-align:center;font-size:1.15rem}
+.prog{flex:1;min-width:160px}
+.prog small{color:var(--muted)}
+.track{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:4px}
+.track i{display:block;height:100%;background:var(--c);width:0;transition:width .25s}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.9rem;padding:5px 13px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.group{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;overflow:hidden}
+.gh{display:flex;justify-content:space-between;align-items:baseline;padding:12px 16px}
+.gh h2{margin:0;font-size:1.05rem}
+.gh span{font-size:.88rem}
+.g-f .gh{background:var(--f-bg);color:var(--f)}
+.g-c .gh{background:var(--c-bg);color:var(--c)}
+.g-r .gh{background:var(--r-bg);color:var(--r)}
+.g-t .gh{background:var(--t-bg);color:var(--t)}
+ul{list-style:none;margin:0;padding:0}
+li.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;border-top:1px solid var(--line)}
+li.row label{display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;min-width:0}
+li.row input[type=checkbox]{width:20px;height:20px;accent-color:var(--c)}
+li.done .nm{text-decoration:line-through;color:var(--muted)}
+.qty{color:var(--muted);white-space:nowrap}
+.x{border:0;background:transparent;color:var(--muted);font-size:1.3rem;cursor:pointer;padding:0 6px;line-height:1}
+.empty{padding:14px 16px;color:var(--muted);border-top:1px solid var(--line)}
+.kind{font-size:.78rem;padding:1px 8px;border-radius:999px;background:var(--line);color:var(--muted);margin-left:8px}
+.exp{font-size:.8rem;padding:1px 8px;border-radius:999px;background:var(--c-bg);color:var(--c)}
+.exp.soon{background:var(--soon-bg);color:var(--soon)}
+.exp.over{background:var(--warn-bg);color:var(--warn)}
+.meta{display:flex;align-items:center;gap:8px}
+.add{display:flex;flex-wrap:wrap;gap:8px;background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:12px}
+.add input,.add select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+.add .grow{flex:1 1 140px}
+.add .sm{flex:0 1 100px}
+.add button{font:inherit;border:0;border-radius:8px;background:var(--ink);color:var(--bg);padding:8px 16px;cursor:pointer}
+.row-actions{display:flex;justify-content:flex-end;margin:-4px 0 14px}
+.link{border:0;background:none;color:var(--muted);font:inherit;text-decoration:underline;cursor:pointer}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:640px){.split{grid-template-columns:1fr}}
+.split .g-r{grid-column:1/-1}
+.search{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:12px}
+[hidden]{display:none!important}
+body{background-image:linear-gradient(180deg,color-mix(in srgb,var(--r-bg) 75%,var(--bg)) 0,var(--bg) 260px)}
+h1,.gh h2,.tabs button,.chip,.add button{font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400}
+h1{font-size:2.1rem;letter-spacing:0}
+.deco{font-size:1.6rem;margin:0 0 2px;display:flex;gap:10px}
+.deco span{display:inline-block;animation:bob 2.4s ease-in-out infinite}
+.deco span:nth-child(2){animation-delay:.2s}.deco span:nth-child(3){animation-delay:.4s}.deco span:nth-child(4){animation-delay:.6s}.deco span:nth-child(5){animation-delay:.8s}.deco span:nth-child(6){animation-delay:1s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.tabs,.tabs button{border-radius:999px}
+.tabs button{font-size:1.1rem}
+.chip{font-size:1rem}
+.group,.add{border-radius:20px;border-width:2px}
+.gh h2{font-size:1.25rem}
+.add button{border-radius:999px}
+li.row:hover{background:var(--bg)}
+.emo{display:inline-block;width:1.7em;text-align:center;font-size:1.15rem;transition:transform .15s}
+li.row:hover .emo{transform:scale(1.3) rotate(-8deg)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.kit{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px 24px;align-items:start}
+.kit.one{display:block}
+#fridgeLists.split{display:block}
+.fridge{border:3px solid var(--ink);border-radius:28px 28px 16px 16px;background:var(--surface);padding:10px;box-shadow:0 8px 0 -3px var(--line);margin-bottom:12px}
+.fridge .group{position:relative;overflow:visible;margin:0 0 10px;border-width:2px;border-radius:18px}
+.fridge .group:last-child{margin-bottom:0}
+.fridge .gh{border-radius:16px 16px 0 0}
+.fridge .g-f{background:color-mix(in srgb,var(--f-bg) 45%,var(--surface))}
+.fridge .group::after{content:"";position:absolute;top:16px;right:-20px;width:7px;height:44px;border-radius:4px;background:var(--ink)}
+.side{display:flex;flex-direction:column;gap:16px}
+.side .group{margin:0}
+.g-t{border-width:3px;border-radius:14px}
+.g-r{border-style:solid}
+@media (max-width:640px){.kit{grid-template-columns:1fr}.fridge .group::after{display:none}}
+.kit{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.fridge,.side{display:contents}
+.fridge .group,.side .group{margin:0;border-width:2px;border-radius:20px;overflow:hidden}
+.fridge .group::after{display:none}
+.fridge .gh{border-radius:0}
+.fridge .g-f{background:var(--surface)}
+.side .group:only-child{grid-column:1/-1}
+.g-t{border-width:2px;border-radius:20px}
+@media (max-width:640px){.kit{grid-template-columns:1fr}}
+#recipes{margin:0 0 20px}
+.rh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.rh h2{font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400;font-size:1.4rem;margin:0}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.rc{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:14px}
+.rt{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.rt b{display:block;font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400;font-size:1.15rem}
+.rt small{color:var(--muted)}
+.rt .exp{margin-left:auto}
+.emo.big{font-size:1.9rem;width:auto}
+.ing{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.ig{font-size:.82rem;padding:2px 10px;border-radius:999px;background:var(--line);color:var(--muted)}
+.ig.on{background:var(--c-bg);color:var(--c)}
+.ig.opt{background:transparent;border:1px dashed var(--line)}
+.ig.opt.on{background:var(--c-bg);border-color:var(--c)}
+.rc summary{cursor:pointer}
+.rc ol{margin:8px 0 0;padding-left:1.3em;color:var(--muted)}
+.rnote{color:var(--muted);font-size:.85rem;margin:10px 0 0}
+.g-b .gh{background:var(--warn-bg);color:var(--warn)}
+.sec{margin-top:26px}
+.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:640px){.pgrid{grid-template-columns:1fr}}
+.own{font:inherit;font-size:.78rem;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:1px 2px;max-width:5.4em}
+.padd{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--line)}
+.padd input{flex:1 1 90px;min-width:0;font:inherit;font-size:.9rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.padd .sm{flex:0 1 64px}
+.gh{align-items:center;gap:6px 8px;flex-wrap:wrap}
+.g-m .gh{background:color-mix(in srgb,#f2a93b 30%,var(--surface));color:var(--ink)}
+.gh .padd.inl{border:0;padding:0;flex:1 1 170px;min-width:0}
+.gh .padd.inl input{background:var(--surface);padding:3px 8px}
+.gh .padd.inl .sm{flex:0 1 54px}
+.gh .padd.inl button{padding:2px 10px}
+.padd button{border:1px solid #E6B800;border-radius:999px;background:#FFE27A;color:#14313A;padding:4px 12px;cursor:pointer;font:inherit}
+.padd button:hover{background:#FFD84D}
+.plus{border:0;background:none;color:var(--ink);font:inherit;font-size:1.8rem;font-weight:700;line-height:1;padding:0 6px;cursor:pointer;transition:transform .12s}
+.plus:hover{transform:scale(1.25)}
+.g-f .plus{color:var(--f)}
+.g-c .plus{color:var(--c)}
+.g-r .plus{color:var(--r)}
+.g-b .plus{color:var(--warn)}
+.g-s .plus{color:#C2527A}
+.g-m .plus{color:#B87400}
+.g-t .plus{color:var(--t)}
+.okbtn{border:0;background:none;color:var(--ink);font:inherit;font-size:1.8rem;font-weight:700;line-height:1;padding:0 8px;cursor:pointer;transition:transform .12s}
+.okbtn:hover{transform:scale(1.25)}
+.ei{display:flex;align-items:center;gap:8px}
+.ei input{flex:1}
+.chip[data-v="all"],.chip[data-v="t"]{background:light-dark(#E4E6E7,#33414A);color:var(--ink);border-color:light-dark(#CBD0D2,#4A5A62)}
+.chip[data-v="all"][aria-pressed="true"],.chip[data-v="t"][aria-pressed="true"]{background:light-dark(#6E7679,#A9B5BA);color:light-dark(#fff,#0F1C20);border-color:light-dark(#6E7679,#A9B5BA)}
+.gh .plus{margin-left:auto;order:3}
+.gh>span{order:2}
+.at{color:var(--muted);font-size:.72rem;white-space:nowrap}
+.qe{font:inherit;font-size:.9rem;color:var(--ink);background:transparent;border:1px solid transparent;border-bottom:1px dashed var(--line);border-radius:6px;padding:2px 6px;width:5.5em;text-align:right;min-width:0}
+.qe:hover,.qe:focus{background:var(--bg);border-color:var(--line)}
+.dlg{position:fixed;inset:0;background:rgba(10,20,24,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.dbox{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:22px;padding:18px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:12px}
+.dbox h2{margin:0;font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400;font-size:1.3rem}
+.dbox label{display:flex;flex-direction:column;gap:4px;font-size:.9rem;color:var(--muted);flex:1;min-width:0}
+.dbox input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.dbox input[readonly]{opacity:.75}
+.dt{display:flex;gap:10px}
+.derr{margin:0;color:var(--warn);font-size:.9rem}
+.dact{display:flex;justify-content:flex-end;align-items:center;gap:14px}
+.who{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:32px;margin-top:-2px}
+.wl{font:inherit;font-size:.85rem;background:var(--bg);border:1px dashed var(--line);border-radius:999px;padding:2px 12px;color:var(--ink);cursor:pointer}
+.wl[aria-expanded="true"]{border-style:solid;border-color:var(--f);color:var(--f)}
+.wc{display:inline-flex;align-items:center;gap:4px;font-size:.85rem;padding:2px 10px 2px 6px;border-radius:999px;border:1px solid var(--line);cursor:pointer}
+.wc input{width:16px;height:16px;accent-color:var(--f)}
+.wc.on{background:var(--f-bg);color:var(--f);border-color:var(--f)}
+.g-s .gh{background:color-mix(in srgb,#f4a6c0 35%,var(--surface));color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+  <div class="deco" aria-hidden="true"><span>🍙</span><span>🥟</span><span>🍳</span><span>🥗</span><span>🍜</span><span>🍰</span></div>
+  <h1>월요매식회 🥢</h1>
+  <p class="sub">오늘 점심은 뭘로? 🍴 챙길 것은 쏙쏙, 냉장고 속은 한눈에!</p>
+  <p class="sub" id="sync" style="margin-top:-12px;font-size:.85rem">이 기기에만 저장</p>
+
+  <section id="prepView">
+    <div class="chips" id="prepChips"></div>
+    <section id="recipes"></section>
+    <div id="prepList"></div>
+    <div class="row-actions"><button class="link" id="resetChecks">🔄 체크 모두 해제</button></div>
+  </section>
+
+  <div id="dlg" class="dlg" hidden>
+    <div class="dbox" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+      <h2 id="dTitle">식재료 추가</h2>
+      <label><span id="dNameL">식재료 이름</span> <span class="ei"><input id="dName" placeholder="예: 삼겹살" autocomplete="off"><span id="dEmo" class="emo">🍽️</span></span></label>
+      <label>수량 <input id="dQty" placeholder="예: 600g, 2개" autocomplete="off"></label>
+      <div class="dt"><label>날짜 (자동) <input id="dDate" readonly></label><label>시간 (자동) <input id="dTime" readonly></label></div>
+      <p class="derr" id="dErr" hidden>이름과 수량을 모두 입력해 주세요.</p>
+      <div class="dact"><button type="button" class="link" id="dCancel">취소</button><button type="button" class="okbtn" id="dOk" aria-label="추가">+</button></div>
+    </div>
+  </div>
+</main>
+
+<script>
+var KEY="lunch4-v1";
+var META={f:["냉동 식재료","−18°","🧊"],c:["냉장 식재료","3°","🥬"],r:["실온 식재료","","🍞"],b:["반찬","","🥗"],s:["간식","","🍪"],m:["조미료","","🧂"],t:["준비물","","🥄"]};
+var EM=[["파스타","🍝"],["스파게티","🍝"],["칼국수","🍜"],["냉면","🍜"],["우동","🍜"],["국수","🍜"],["짜장","🍜"],["카레","🍛"],["샌드위치","🥪"],["했버거","🍔"],["핫도그","🌭"],["소시지","🌭"],["소세지","🌭"],["김밥","🍙"],["초밥","🍣"],["연어","🍣"],["오징어","🦑"],["문어","🐙"],["조개","🦪"],["굴","🦪"],["랑스터","🦞"],["참치","🐟"],["고등어","🐟"],["갈치","🐟"],["어묵","🍢"],["순대","🍢"],["떡볶이","🍢"],["베이컨","🥓"],["닭","🍗"],["갈비","🍖"],["스테이크","🥩"],["족발","🍖"],["팬케이크","🥞"],["와플","🧇"],["도넛","🍩"],["쿠키","🍪"],["초콜릿","🍫"],["사탕","🍬"],["젤리","🍬"],["아이스크림","🍦"],["푸딩","🍮"],["꿀","🍯"],["잼","🍯"],["땅콩","🥜"],["견과","🥜"],["아몬드","🥜"],["바나나","🍌"],["포도","🍇"],["수박","🍉"],["딸기","🍓"],["쒤","🍊"],["오렌지","🍊"],["레몬","🍋"],["복숭아","🍑"],["키위","🥝"],["파인애플","🍍"],["망고","🥭"],["체리","🍒"],["블루베리","🫐"],["멜론","🍈"],["오이","🥒"],["브로콜리","🥦"],["옥수수","🌽"],["고구마","🍠"],["가지","🍆"],["파프리카","🫑"],["피망","🫑"],["호박","🎃"],["배추","🥬"],["양배추","🥬"],["청경채","🥬"],["깻잎","🌿"],["부추","🌿"],["미나리","🌿"],["미역","🌿"],["다시마","🌿"],["콩나물","🌱"],["콩","🫘"],["두유","🥛"],["요거트","🥛"],["요구르트","🥛"],["버터","🧈"],["마요네즈","🫙"],["케챙","🍅"],["식초","🫙"],["식용유","🫗"],["올리브","🫒"],["설탕","🧂"],["후추","🧂"],["고춘가루","🌶️"],["된장","🫙"],["간장","🫙"],["맥주","🍺"],["와인","🍷"],["소주","🍶"],["막걸리","🍶"],["주스","🧃"],["콜라","🥤"],["사이다","🥤"],["탄산","🥤"],["녹차","🍵"],["홍차","🍵"],["식빵","🍞"],["토스트","🍞"],["베이글","🥯"],["크루아상","🥐"],["생수","💧"],["찌개","🍲"],["만두","🥟"],["밥","🍚"],["소고기","🥩"],["삼겹","🥩"],["고기","🥩"],["얼음","🧊"],["김치","🥬"],["반찬","🥗"],["나물","🥗"],["볶음","🥗"],["쌈채소","🥬"],["상추","🥬"],["시금치","🥬"],["계란","🥚"],["달걀","🥚"],["두부","🥡"],["쌈장","🫙"],["고추","🌶️"],["음료","🥤"],["물티슈","🧻"],["냅킨","🧻"],["물","💧"],["김","🍙"],["참기름","🧂"],["소금","🧂"],["과일","🍎"],["사과","🍎"],["수저","🥄"],["그릇","🥣"],["접시","🥣"],["컵","🥛"],["집게","✂️"],["가위","✂️"],["버너","🔥"],["냄비","🍳"],["프라이팬","🍳"],["보냉백","🎒"],["밀폐","🥡"],["쓰레기","🗑️"],["새우","🍤"],["대파","🌱"],["콩나물","🌱"],["우유","🥛"],["라면","🍜"],["멸치","🐟"],["생선","🐟"],["빵","🍞"],["과자","🍪"],["커피","☕"],["케이크","🍰"],["치즈","🧀"],["햄","🍖"],["감자","🥔"],["양파","🧅"],["마늘","🧄"],["당근","🥕"],["토마토","🍅"],["버섯","🍄"],["치킨","🍗"],["피자","🍕"],["떡","🍡"]];
+function emo(n,s){for(var i=0;i<EM.length;i++)if(n.indexOf(EM[i][0])>-1)return EM[i][1];return META[s]?META[s][2]:"🍽️"}
+var ORDER=["f","c","r","b","s","m","t"];
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function ymd(add){var d=new Date();d.setDate(d.getDate()+add);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+function defaults(){
+  var P=[["냉동 만두","f",5,"개"],["냉동 밥","f",1,"공기"],["불고기용 소고기","f",150,"g"],["얼음","f",0,"","1봉지"],
+    ["김치","c",0,"","1통"],["밑반찬","c",0,"","3종"],["쌈채소","c",0,"","1봉지"],["계란","c",2,"개"],["두부","c",0,"","1모"],["쌈장","c",0,"","1통"],["음료·물","c",1,"병"],
+    ["즉석밥","r",1,"개"],["김","r",0,"","1팩"],["참기름·소금","r",0,"","1세트"],["과일","r",1,"개"],
+    ["수저","t",1,"벌"],["그릇·접시","t",2,"개"],["컵","t",1,"개"],["냅킨·물티슈","t",0,"","1팩"],["집게·가위","t",0,"","1세트"],["휴대용 버너+가스","t",0,"","1세트"],["냄비·프라이팬","t",0,"","1개"],["보냉백+아이스팩","t",0,"","1세트"],["밀폐용기","t",0,"","2개"],["쓰레기봉투","t",0,"","1장"]
+  ].map(function(a){return{id:uid(),n:a[0],s:a[1],p:a[2],u:a[3],f:a[4]||"",d:false}});
+  var F=[["냉동 만두","식자재","f","1봉",""],["냉동 밥","식자재","f","4공기",""],["삼겹살","식자재","f","600g",ymd(60)],["냉동 새우","식자재","f","1봉",ymd(90)],
+    ["김치","반찬","c","1통",""],["멸치볶음","반찬","c","1통",ymd(5)],["시금치나물","반찬","c","1통",ymd(2)],["계란","식자재","c","10개",ymd(14)],["두부","식자재","c","1모",ymd(3)],["대파","식자재","c","1단",ymd(7)]
+  ].map(function(a){return{id:uid(),n:a[0],k:a[1],s:a[2],q:a[3],e:a[4]}});
+  return{people:4,prep:P,fridge:F};
+}
+var S;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+function migrate(s){
+  var r2=migrate2(s),r3=false;
+  if(!(s.v>=3)){var k=0,NM=["조화","김사","홍미","신수"];s.prep.forEach(function(i){if(i.s==="t"&&!i.o)i.o=NM[k++%NM.length]});s.v=3;r3=true}
+  var r4=false;
+  if(!(s.v>=4)){
+    s.prep.forEach(function(i){if(i.n==="참기름·소금"||i.n==="쌈장")i.s="m"});
+    if(!s.prep.some(function(i){return i.s==="m"&&i.n!=="참기름·소금"&&i.n!=="쌈장"})){
+      [["간장","m",0,"","1병"],["고추장","m",0,"","1통"]].forEach(function(a){s.prep.push({id:uid(),n:a[0],s:a[1],p:a[2],u:a[3],f:a[4],d:false})});
+    }
+    s.v=4;r4=true;
+  }
+  return r2||r3||r4;
+}
+function migrate2(s){
+  if(s.v>=2)return false;
+  s.v=2;
+  s.prep.forEach(function(i){
+    if(i.n==="밑반찬"||i.n==="김치")i.s="b";
+    if(i.n==="과일")i.s="s";
+  });
+  if(!s.prep.some(function(i){return i.s==="s"&&i.n!=="과일"})){
+    [["과자","s",0,"","1봉지"],["커피·차","s",1,"잔"]].forEach(function(a){s.prep.push({id:uid(),n:a[0],s:a[1],p:a[2],u:a[3],f:a[4]||"",d:false})});
+  }
+  return true;
+}
+if(!S||!S.prep||!S.fridge)S=defaults();
+if(migrate(S))save();
+var DB=null,docRef=null,timer=null,dirty=false;
+function setSync(t){var e=document.getElementById("sync");if(e)e.textContent=t}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  if(!docRef)return;
+  dirty=true;clearTimeout(timer);
+  timer=setTimeout(function(){
+    docRef.set({people:S.people,prep:S.prep,fridge:S.fridge,v:S.v}).then(function(){dirty=false;setSync("모든 기기와 동기화됨")},function(){dirty=false;setSync("동기화 실패 · 이 기기에만 저장됨")});
+  },400);
+}
+
+var RC=[
+['계란찜','🥚','5분 · 전자레인지',[['계란','달걀'],['?','대파','쪽파']],['계란 2개를 풀고 물 4큰술, 소금 약간을 섞어요','내열 그릇에 담고 랩을 씌워 구멍을 낸 뒤 전자레인지에 2분 30초(700W) 돌려요','부풀어 오르면 꺼내고, 덜 익었으면 20초씩 더 돌려요','다진 대파와 참기름을 올려요']],
+['김치 두부찜','🥬','8분 · 전자레인지',[['두부'],['김치']],['두부를 도톰하게 썰어 내열 접시에 깔아요','잘게 썬 김치를 올리고 참기름을 둘러요','랩을 씌워 전자레인지에 3분 돌려요']],
+['만두찜','🥟','6분 · 전자레인지',[['만두']],['내열 접시에 만두를 겹치지 않게 놓고 물 2큰술을 뿌려요','랩을 씌워 구멍을 낸 뒤 전자레인지에 3~4분 돌려요','간장에 식초나 고춧가루를 섞어 찍어 먹어요']],
+['김치 주먹밥','🍙','5분 · 불 없이',[['밥'],['김치'],['김']],['밥을 전자레인지에 데워요 (즉석밥은 1분 30초)','잘게 다진 김치와 참기름을 밥에 섞어요','동글게 뭉쳐 김을 부숴 묻혀요']],
+['계란 간장밥','🍚','5분 · 전자레인지',[['밥'],['계란','달걀'],['김']],['밥을 데워 그릇에 담아요','내열 접시에 계란을 깨고 노른자에 이쑤시개로 구멍을 낸 뒤 랩을 씌워 40~60초 돌려요','밥 위에 올리고 간장, 참기름, 부순 김을 뿌려요']],
+['쌈밥','🥬','5분 · 불 없이',[['쌈채소','상추','깻잎'],['쌈장'],['밥']],['쌈채소를 씻어 물기를 빼요','밥을 데워 한 숟갈씩 뭉쳐요','쌈채소에 밥과 쌈장을 올려 싸 먹어요']],
+['김치 계란덮밥','🍳','7분 · 전자레인지',[['김치'],['계란','달걀'],['밥']],['잘게 썬 김치를 내열 그릇에 담아 1분 돌려요','풀어 둔 계란을 붓고 랩을 씌워 1분 30초 더 돌려요','데운 밥 위에 올리고 참기름을 둘러요']],
+['두부 간장무침','🥡','5분 · 불 없이',[['두부'],['?','김','대파']],['두부의 물기를 빼고 한입 크기로 썰어요','간장, 참기름, 깨로 양념장을 만들어요','양념장을 올리고 김이나 대파가 있으면 뿌려요']],
+['불고기 덮밥','🥩','10분 · 전자레인지',[['소고기'],['밥'],['?','양파','대파']],['얇은 소고기를 간장, 설탕, 다진 마늘에 5분 재워요','내열 그릇에 고기(와 양파)를 넣고 랩을 씌워 3분 돌려요','한 번 섞어 2분 더 돌리고 속까지 익었는지 확인해요','데운 밥 위에 올려요']],
+['삼겹살 김치찜','🥓','15분 · 전자레인지',[['삼겹살'],['김치']],['삼겹살을 해동해 얇게 썰어요','내열 용기에 김치를 깔고 삼겹살을 올려요','랩을 씌워 5분 돌리고 뒤집어 3분 더 돌려요','속까지 완전히 익었는지 확인해요']],
+['새우찜','🍤','6분 · 전자레인지',[['새우'],['?','대파','쪽파']],['새우를 해동해 물기를 닦아요','소금, 후추를 뿌려 내열 접시에 놓아요','랩을 씌워 2분 30초 돌리고 분홍색으로 변했는지 확인해요']],
+['멸치 주먹밥','🍙','5분 · 불 없이',[['멸치'],['밥'],['김']],['멸치볶음을 잘게 다져요','데운 밥에 멸치와 참기름을 섞어요','동글게 뭉쳐 김가루를 묻혀요']],
+['시금치 두부무침','🥗','10분 · 전자레인지',[['시금치'],['두부']],['시금치를 내열 그릇에 물 2큰술과 함께 담고 랩을 씌워 2분 돌려요','찬물에 헹궈 물기를 꼭 짜고 먹기 좋게 잘라요','두부를 으깨 물기를 짜고 시금치와 소금, 참기름, 깨로 버무려요']],
+['라면','🍜','8분 · 전자레인지',[['라면'],['?','계란','달걀']],['내열 큰 그릇에 면과 물 500ml, 스프를 넣어요','랩 없이 전자레인지에 5~6분 돌리며 한 번 저어요','계란은 풀어 넣고 30초 더 돌려요']],
+['과일 요거트','🍓','3분 · 불 없이',[['과일','바나나','사과','딸기'],['요거트','요구르트','우유']],['과일을 한입 크기로 썰어요','컵에 요거트를 담아요','과일을 올려요']],
+['구운 감자','🥔','8분 · 전자레인지',[['감자']],['감자를 씻어 포크로 여러 군데 찔러요','랩을 씌워 전자레인지에 4분, 뒤집어 3분 돌려요','꼬치가 푹 들어가면 소금이나 버터와 함께 먹어요']],
+['고구마 찜','🍠','8분 · 전자레인지',[['고구마']],['고구마를 씻어 젖은 키친타월로 감싸요','전자레인지에 4분, 뒤집어 3분 돌려요','꼬치가 푹 들어가면 완성이에요']],
+['치즈 토스트','🧀','4분 · 전자레인지',[['식빵','빵'],['치즈']],['식빵에 치즈를 올려요','전자레인지에 30~40초 돌려 치즈를 녹여요','잼이나 꿀을 곁들여도 좋아요']]
+];
+var rOff=0;
+function renderRecipes(){
+  var names=S.prep.filter(function(i){return i.s!=="t"}).map(function(i){return i.n});
+  function has(ks){return names.some(function(n){return ks.some(function(k){return n.indexOf(k)>-1})})}
+  var list=RC.map(function(r){
+    var req=[],opt=[];
+    r[3].forEach(function(g){if(g[0]==='?')opt.push(g.slice(1));else req.push(g)});
+    var m=req.map(has),c=m.filter(Boolean).length,om=opt.map(has);
+    return{r:r,req:req,opt:opt,m:m,om:om,c:c,t:req.length,miss:req.length-c,oc:om.filter(Boolean).length};
+  }).filter(function(x){return x.c>0})
+    .sort(function(a,b){return (a.miss-b.miss)||(b.c-a.c)||(b.oc-a.oc)||a.r[0].localeCompare(b.r[0])});
+  var full=list.filter(function(x){return x.miss===0});
+  if(full.length>=3)list=full;
+  var el=$('recipes');
+  var head='<div class="rh"><h2>🍳 식재료를 이용한 추천 레시피 3</h2>'+(list.length>3?'<button class="link" id="rMore">🔄 다른 레시피 보기</button>':'')+'</div>';
+  if(!list.length){el.innerHTML=head+'<div class="group"><div class="empty" style="border:0">🥕 식재료를 추가하면 추천 레시피가 나타나요!</div></div>';return}
+  var picks=[];
+  for(var i=0;i<Math.min(3,list.length);i++)picks.push(list[(rOff*3+i)%list.length]);
+  el.innerHTML=head+'<div class="rgrid">'+picks.map(function(x){
+    var r=x.r,full=x.miss===0;
+    return '<article class="rc"><div class="rt"><span class="emo big">'+r[1]+'</span><div><b>'+esc(r[0])+'</b><small>⏱ '+esc(r[2])+'</small></div><span class="exp'+(full?'':' soon')+'">'+(full?'식재료만으로 가능 ✨':'재료 '+x.c+'/'+x.t)+'</span></div>'
+      +'<div class="ing">'+x.req.map(function(g,k){return '<span class="ig'+(x.m[k]?' on':'')+'">'+(x.m[k]?'✓ ':'+ ')+esc(g[0])+'</span>'}).join('')
+      +x.opt.map(function(g,k){return '<span class="ig opt'+(x.om[k]?' on':'')+'">'+(x.om[k]?'✓ ':'')+'(선택) '+esc(g[0])+'</span>'}).join('')+'</div>'
+      +'<details><summary>👩‍🍳 만드는 법</summary><ol>'+r[4].map(function(s){return '<li>'+esc(s)+'</li>'}).join('')+'</ol></details></article>';
+  }).join('')+'</div><p class="rnote">전자레인지나 불 없이 만들 수 있는 레시피만 골랐고, 등록한 식재료 안에서 가능한 것을 먼저 보여드려요. 소금, 간장, 기름 같은 기본 양념은 있다고 가정했어요. 전자레인지 시간은 700W 기준이니 기종에 따라 조절하고, 고기와 해산물은 속까지 익었는지 꼭 확인하세요.</p>';
+}
+$('recipes').addEventListener('click',function(e){if(e.target.closest('#rMore')){rOff++;renderRecipes()}});
+var NAMES=["조화","김사","홍미","신수"];var WO={};
+function ownOf(i){return NAMES.indexOf(i.o)<0?"미정":i.o}
+function peopleHtml(){
+  var un=S.prep.some(function(i){return i.s==="t"&&ownOf(i)==="미정"});
+  var cols=NAMES.concat(un?["미정"]:[]);
+  return '<div class="pgrid">'+cols.map(function(n){
+    var items=S.prep.filter(function(i){return i.s==="t"&&ownOf(i)===n});
+    var d=items.filter(function(i){return i.d}).length;
+    var opts=(n==="미정"?["미정"]:[]).concat(NAMES);
+    return '<div class="group g-t"><div class="gh"><h2>'+(n==="미정"?"❓ ":({"조화":"👩","신수":"👩","김사":"👨","홍미":"👨"}[n]||"🙋")+" ")+n+'</h2><button class="plus" data-padd="'+n+'" aria-label="'+n+' 준비물 추가">+</button><span>'+items.length+'개</span></div>'
+    +(items.length?'<ul>'+items.map(function(i){
+      return '<li class="row'+(i.d?' done':'')+'"><label><input type="checkbox" data-chk="'+i.id+'"'+(i.d?' checked':'')+'><span class="emo">'+emo(i.n,i.s)+'</span><span class="nm">'+esc(i.n)+'</span></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
+    }).join('')+'</ul>':'<div class="empty">🫙 아직 없어요. 이름 옆에서 바로 추가하세요.</div>')
+    +'</div>';
+  }).join('')+'</div>';
+}
+function addOwn(n){
+  var a=document.querySelector('[data-pn="'+n+'"]'),q=document.querySelector('[data-pq="'+n+'"]');
+  var v=a.value.trim();if(!v){a.focus();return}
+  S.prep.push({id:uid(),n:v,s:"t",o:n==="미정"?"":n,p:0,u:"",f:q.value.trim(),d:false});
+  save();renderPrep();
+}
+function addCat(s){
+  var a=document.querySelector('[data-cn="'+s+'"]'),q=document.querySelector('[data-cq="'+s+'"]');
+  var v=a.value.trim();if(!v){a.focus();return}
+  S.prep.push({id:uid(),n:v,s:s,p:0,u:"",f:q.value.trim(),d:false});
+  save();renderPrep();
+}
+$("prepList").addEventListener("keydown",function(e){
+  if(e.key!=="Enter")return;
+  if(e.target.dataset.pn)addOwn(e.target.dataset.pn);
+  else if(e.target.dataset.cn)addCat(e.target.dataset.cn);
+});
+function whoHtml(i){
+  var w=i.w||[],open=WO[i.id];
+  return '<div class="who"><button class="wl" data-wo="'+i.id+'" aria-expanded="'+(open?"true":"false")+'">🙋 가져올 사람'+(open?' ▸':(w.length?' · '+esc(w.join(', ')):' ▸'))+'</button>'+(open?NAMES.map(function(n){var on=w.indexOf(n)>-1;return '<label class="wc'+(on?' on':'')+'"><input type="checkbox" data-who="'+i.id+'|'+n+'"'+(on?' checked':'')+'>'+n+'</label>'}).join(''):'')+'</div>';
+}
+var B={};
+function kit(b,l,r){
+  var L=l.filter(function(k){return b[k]}),R=r.filter(function(k){return b[k]});
+  if(L.length+R.length===1)return '<div class="kit one">'+b[L[0]||R[0]]+'</div>';
+  var h='<div class="kit">';
+  if(L.length)h+='<div class="fridge">'+L.map(function(k){return b[k]}).join("")+'</div>';
+  if(R.length)h+='<div class="side">'+R.map(function(k){return b[k]}).join("")+'</div>';
+  return h+'</div>';
+}
+var pf="all",ff="all",tab=(location.hash==="#fridge")?"fridge":"prep";
+function $(id){return document.getElementById(id)}
+
+function chips(el,opts,cur,cb){
+  el.innerHTML=opts.map(function(o){return '<button class="chip" aria-pressed="'+(o[0]===cur)+'" data-v="'+o[0]+'">'+o[1]+'</button>'}).join("");
+  Array.prototype.forEach.call(el.children,function(b){b.onclick=function(){cb(b.dataset.v)}});
+}
+
+function qtyOf(it){return it.p>0?(it.p*S.people)+it.u:it.f}
+
+function renderPrep(){
+  chips($("prepChips"),[["all","🍽️ 전체"],["f","🧊 냉동 식재료"],["c","🥬 냉장 식재료"],["r","🍞 실온 식재료"],["b","🥗 반찬"],["s","🍪 간식"],["m","🧂 조미료"],["t","🥄 준비물"]],pf,function(v){pf=v;renderPrep()});
+  var html="";B={};
+  ORDER.forEach(function(s){
+    if(pf!=="all"&&pf!==s)return;
+    html="";
+    var items=S.prep.filter(function(i){return i.s===s});
+    var d=items.filter(function(i){return i.d}).length;
+    html+='<div class="group g-'+s+'"><div class="gh"><h2>'+META[s][2]+' '+META[s][0]+'</h2><button class="plus" data-cadd="'+s+'" aria-label="'+META[s][0]+' 추가">+</button><span>'+items.length+'개</span></div>';
+    if(!items.length)html+='<div class="empty">🫙 텅 비었어요! ➕ 버튼으로 추가해 보세요.</div>';
+    else html+="<ul>"+items.map(function(i){
+      return '<li class="row"><label><span class="emo">'+emo(i.n,i.s)+'</span><span class="nm">'+esc(i.n)+'</span></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
+    }).join("")+"</ul>";
+    html+="</div>";B[s]=html;
+  });
+  var tb=S.prep.filter(function(i){return i.s==="t"}),td=tb.filter(function(i){return i.d}).length;
+  var fb=S.prep.filter(function(i){return i.s!=="t"}),fd=fb.filter(function(i){return i.d}).length;
+  $("prepList").innerHTML=(pf!=="t"?'<div class="rh"><h2>🥕 식재료</h2><span class="qty">'+fb.length+'개</span></div>':'')+kit(B,["f","c","r"],["b","s","m"])+(B.t?'<section class="sec"><div class="rh"><h2>🥄 준비물</h2><span class="qty">'+tb.length+'개</span></div>'+peopleHtml()+'</section>':'');
+  renderRecipes();
+}
+
+function dday(e){
+  if(!e)return "";
+  var t=new Date();t.setHours(0,0,0,0);
+  var n=Math.round((new Date(e+"T00:00:00")-t)/864e5);
+  if(n<0)return '<span class="exp over">기한 '+(-n)+'일 지남</span>';
+  if(n===0)return '<span class="exp over">오늘까지</span>';
+  return '<span class="exp'+(n<=3?" soon":"")+'">D-'+n+'</span>';
+}
+
+function renderFridge(){
+  chips($("fridgeChips"),[["all","🍽️ 전체"],["식자재","🥕 식자재"],["반찬","🥗 반찬"],["간식","🍪 간식"]],ff,function(v){ff=v;renderFridge()});
+  var q=$("q").value.trim().toLowerCase();
+  var html="";B={};
+  [["f","🧊 냉동실","−18°"],["c","🥗 냉장실","3°"],["r","🍜 실온 보관","상온"]].forEach(function(z){
+    html="";var all=S.fridge.filter(function(i){return i.s===z[0]});
+    var items=all.filter(function(i){return (ff==="all"||i.k===ff)&&(!q||i.n.toLowerCase().indexOf(q)>-1)})
+      .sort(function(a,b){return (a.e||"9999").localeCompare(b.e||"9999")});
+    html+='<div class="group g-'+z[0]+'"><div class="gh"><h2>'+z[1]+'</h2><span>'+z[2]+" · "+all.length+'개</span></div>';
+    if(!items.length)html+='<div class="empty">'+(all.length?"🔍 조건에 맞는 항목이 없어요.":"🫙 텅 비었어요! 아래에서 채워 보세요.")+'</div>';
+    else html+="<ul>"+items.map(function(i){
+      return '<li class="row"><div style="min-width:0"><span class="emo">'+emo(i.n,i.s)+'</span><b>'+esc(i.n)+'</b><span class="kind">'+i.k+'</span></div><div class="meta"><span class="qty">'+esc(i.q)+'</span>'+dday(i.e)+'<button class="x" data-fdel="'+i.id+'" aria-label="'+esc(i.n)+' 꺼내기">×</button></div></li>';
+    }).join("")+"</ul>";
+    html+="</div>";B[z[0]]=html;
+  });
+  $("fridgeLists").innerHTML=kit(B,["f","c"],["r"]);renderRecipes();
+}
+
+function show(){renderPrep()}
+
+$("resetChecks").onclick=function(){S.prep.forEach(function(i){i.d=false});save();renderPrep()};
+
+$("prepList").addEventListener("click",function(e){
+  var pa=e.target.closest("[data-padd]");
+  if(pa){openDlg("t",pa.dataset.padd);return}
+  var ca=e.target.closest("[data-cadd]");
+  if(ca){openDlg(ca.dataset.cadd);return}
+  var del=e.target.closest("[data-del]");
+  if(del){S.prep=S.prep.filter(function(i){return i.id!==del.dataset.del});save();renderPrep()}
+});
+$("prepList").addEventListener("change",function(e){
+  var qe=e.target.dataset.qty;
+  if(qe){S.prep.forEach(function(i){if(i.id===qe){i.p=0;i.f=e.target.value.trim()}});save();return}
+  var ow=e.target.dataset.own;
+  if(ow){S.prep.forEach(function(i){if(i.id===ow)i.o=e.target.value==="미정"?"":e.target.value});save();renderPrep();return}
+  var wh=e.target.dataset.who;
+  if(wh){var p=wh.split("|");S.prep.forEach(function(i){if(i.id===p[0]){i.w=(i.w||[]).filter(function(n){return n!==p[1]});if(e.target.checked)i.w.push(p[1])}});save();renderPrep();return}
+  var id=e.target.dataset.chk;if(!id)return;
+  S.prep.forEach(function(i){if(i.id===id)i.d=e.target.checked});save();renderPrep();
+});
+var curCat=null;
+function two(n){return String(n).padStart(2,"0")}
+function atStr(at){if(!at)return"";var d=new Date(at);return (d.getMonth()+1)+"/"+d.getDate()+" "+two(d.getHours())+":"+two(d.getMinutes())}
+var curOwn="";
+function openDlg(s,who){
+  curCat=s;curOwn=who||"";
+  $("dNameL").textContent=who?"준비물 이름":"식재료 이름";
+  $("dName").placeholder=who?"예: 수저":"예: 삼겹살";
+  var d=new Date();
+  $("dTitle").textContent=curOwn?("🥄 "+curOwn+" 준비물 추가"):(META[s][2]+" "+META[s][0]+" 추가");
+  $("dName").value="";$("dQty").value="";$("dErr").hidden=true;$("dEmo").textContent=META[s]?META[s][2]:"🍽️";
+  $("dDate").value=d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate());
+  $("dTime").value=two(d.getHours())+":"+two(d.getMinutes());
+  $("dlg").hidden=false;$("dName").focus();
+}
+function closeDlg(){$("dlg").hidden=true;curCat=null}
+function saveDlg(){
+  var n=$("dName").value.trim(),q=$("dQty").value.trim();
+  if(!n||!q){$("dErr").hidden=false;(n?$("dQty"):$("dName")).focus();return}
+  var it={id:uid(),n:n,s:curCat,p:0,u:"",f:q,d:false,at:new Date().toISOString()};
+  if(curCat==="t")it.o=curOwn;
+  S.prep.push(it);
+  save();closeDlg();renderPrep();
+}
+$("dOk").onclick=saveDlg;$("dCancel").onclick=closeDlg;
+$("dName").oninput=function(){var v=this.value.trim();$("dEmo").textContent=emo(v,curCat||"c")};
+$("dlg").addEventListener("click",function(e){if(e.target===$("dlg"))closeDlg()});
+$("dlg").addEventListener("keydown",function(e){
+  if(e.key==="Escape")closeDlg();
+  else if(e.key==="Enter"&&e.target.tagName==="INPUT")saveDlg();
+});
+
+
+show(tab);
+(async function(){
+  try{
+    if(!window.claude||!window.claude.use)return;
+    DB=await window.claude.use("db");
+    if(!DB)return;
+    docRef=DB.doc("lunch/main");
+    setSync("동기화 연결 중…");
+    docRef.onSnapshot(function(snap){
+      setSync("모든 기기와 동기화됨");
+      if(dirty||!snap.exists)return;
+      var d=snap.data();
+      if(!d||!d.prep||!d.fridge)return;
+      var next=JSON.parse(JSON.stringify({people:d.people||4,prep:d.prep,fridge:d.fridge,v:d.v}));var chg=migrate(next);
+      if(JSON.stringify(next)===JSON.stringify(S))return;
+      S=next;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(chg)save();
+      show(tab);
+    },function(){setSync("이 기기에만 저장")});
+  }catch(e){setSync("이 기기에만 저장")}
+})();
+</script>
+</body>
+</html>
