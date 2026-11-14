@@ -225,12 +225,30 @@ li.row:hover .emo{transform:scale(1.3) rotate(-8deg)}
 .pgrid.one{grid-template-columns:1fr}
 #prepChips{align-items:stretch;max-width:none}
 .cg{width:100%;box-sizing:border-box}
+#prepChips .chip{font-size:1.05rem;padding:8px 2px}
+#prepChips .ce{font-size:1.4em}
+#prepChips .chip[data-v="all"],#prepChips .chip[data-v="t"]{font-size:1.3rem;padding:11px 6px}
+#prepChips .cg-h .ce{font-size:1.2em}
+.ver{grid-column:4;text-align:center;font-size:.8rem;color:var(--muted);letter-spacing:.02em}
+.qa{display:flex;flex-direction:column;align-items:flex-end;gap:1px;flex:0 0 auto}
+.qa .at{font-size:.72rem;color:var(--muted);white-space:nowrap;padding-right:6px;font-variant-numeric:tabular-nums}
+li.row{flex-wrap:wrap;padding:12px 16px}
+.emo{font-size:1.3rem}
+.ne,.nm,.sec .nm{font-size:1.2rem}
+.qe{font-size:1.15rem;width:6.5em}
+.qa{display:contents}
+.qa .at{order:5;flex-basis:100%;text-align:left;padding:0 0 0 44px;margin-top:-4px;font-size:.78rem}
+.sec .qa .at{padding-left:74px}
+.dbox input{font-size:1.15rem}
+.hrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.vtag{font-size:.75rem;color:var(--muted);white-space:nowrap}
+.qa .at,.sec .qa .at{text-align:right;padding:0 6px 0 0}
 </style>
 </head>
 <body>
 <main>
   <div class="deco" aria-hidden="true"><span>🍙</span><span>🥟</span><span>🍳</span><span>🥗</span><span>🍜</span><span>🍰</span></div>
-  <h1>월요매식회 🥢</h1>
+  <div class="hrow"><h1>월요매식회 🥢</h1><small class="vtag">Version 7.1</small></div>
   <p class="sub" id="subt">오늘 점심은 뭘로? 🍴 챙길 것은 쏙쏙, 냉장고 속은 한눈에!</p>
   <p class="sub" id="sync" style="margin-top:-12px;font-size:.85rem">이 기기에만 저장</p>
 
@@ -325,26 +343,60 @@ function save(){
 }
 
 var RC=[
-['계란찜','🥚','5분 · 전자레인지',[['계란','달걀'],['?','대파','쪽파']],['계란 2개를 풀고 물 4큰술, 소금 약간을 섞어요','내열 그릇에 담고 랩을 씌워 구멍을 낸 뒤 전자레인지에 2분 30초(700W) 돌려요','부풀어 오르면 꺼내고, 덜 익었으면 20초씩 더 돌려요','다진 대파와 참기름을 올려요']],
-['김치 두부찜','🥬','8분 · 전자레인지',[['두부'],['김치']],['두부를 도톰하게 썰어 내열 접시에 깔아요','잘게 썬 김치를 올리고 참기름을 둘러요','랩을 씌워 전자레인지에 3분 돌려요']],
-['만두찜','🥟','6분 · 전자레인지',[['만두']],['내열 접시에 만두를 겹치지 않게 놓고 물 2큰술을 뿌려요','랩을 씌워 구멍을 낸 뒤 전자레인지에 3~4분 돌려요','간장에 식초나 고춧가루를 섞어 찍어 먹어요']],
-['김치 주먹밥','🍙','5분 · 불 없이',[['밥'],['김치'],['김']],['밥을 전자레인지에 데워요 (즉석밥은 1분 30초)','잘게 다진 김치와 참기름을 밥에 섞어요','동글게 뭉쳐 김을 부숴 묻혀요']],
-['계란 간장밥','🍚','5분 · 전자레인지',[['밥'],['계란','달걀'],['김']],['밥을 데워 그릇에 담아요','내열 접시에 계란을 깨고 노른자에 이쑤시개로 구멍을 낸 뒤 랩을 씌워 40~60초 돌려요','밥 위에 올리고 간장, 참기름, 부순 김을 뿌려요']],
-['쌈밥','🥬','5분 · 불 없이',[['쌈채소','상추','깻잎'],['쌈장'],['밥']],['쌈채소를 씻어 물기를 빼요','밥을 데워 한 숟갈씩 뭉쳐요','쌈채소에 밥과 쌈장을 올려 싸 먹어요']],
-['김치 계란덮밥','🍳','7분 · 전자레인지',[['김치'],['계란','달걀'],['밥']],['잘게 썬 김치를 내열 그릇에 담아 1분 돌려요','풀어 둔 계란을 붓고 랩을 씌워 1분 30초 더 돌려요','데운 밥 위에 올리고 참기름을 둘러요']],
-['두부 간장무침','🥡','5분 · 불 없이',[['두부'],['?','김','대파']],['두부의 물기를 빼고 한입 크기로 썰어요','간장, 참기름, 깨로 양념장을 만들어요','양념장을 올리고 김이나 대파가 있으면 뿌려요']],
-['불고기 덮밥','🥩','10분 · 전자레인지',[['소고기'],['밥'],['?','양파','대파']],['얇은 소고기를 간장, 설탕, 다진 마늘에 5분 재워요','내열 그릇에 고기(와 양파)를 넣고 랩을 씌워 3분 돌려요','한 번 섞어 2분 더 돌리고 속까지 익었는지 확인해요','데운 밥 위에 올려요']],
-['삼겹살 김치찜','🥓','15분 · 전자레인지',[['삼겹살'],['김치']],['삼겹살을 해동해 얇게 썰어요','내열 용기에 김치를 깔고 삼겹살을 올려요','랩을 씌워 5분 돌리고 뒤집어 3분 더 돌려요','속까지 완전히 익었는지 확인해요']],
-['새우찜','🍤','6분 · 전자레인지',[['새우'],['?','대파','쪽파']],['새우를 해동해 물기를 닦아요','소금, 후추를 뿌려 내열 접시에 놓아요','랩을 씌워 2분 30초 돌리고 분홍색으로 변했는지 확인해요']],
-['멸치 주먹밥','🍙','5분 · 불 없이',[['멸치'],['밥'],['김']],['멸치볶음을 잘게 다져요','데운 밥에 멸치와 참기름을 섞어요','동글게 뭉쳐 김가루를 묻혀요']],
-['시금치 두부무침','🥗','10분 · 전자레인지',[['시금치'],['두부']],['시금치를 내열 그릇에 물 2큰술과 함께 담고 랩을 씌워 2분 돌려요','찬물에 헹궈 물기를 꼭 짜고 먹기 좋게 잘라요','두부를 으깨 물기를 짜고 시금치와 소금, 참기름, 깨로 버무려요']],
-['라면','🍜','8분 · 전자레인지',[['라면'],['?','계란','달걀']],['내열 큰 그릇에 면과 물 500ml, 스프를 넣어요','랩 없이 전자레인지에 5~6분 돌리며 한 번 저어요','계란은 풀어 넣고 30초 더 돌려요']],
-['과일 요거트','🍓','3분 · 불 없이',[['과일','바나나','사과','딸기'],['요거트','요구르트','우유']],['과일을 한입 크기로 썰어요','컵에 요거트를 담아요','과일을 올려요']],
-['구운 감자','🥔','8분 · 전자레인지',[['감자']],['감자를 씻어 포크로 여러 군데 찔러요','랩을 씌워 전자레인지에 4분, 뒤집어 3분 돌려요','꼬치가 푹 들어가면 소금이나 버터와 함께 먹어요']],
-['고구마 찜','🍠','8분 · 전자레인지',[['고구마']],['고구마를 씻어 젖은 키친타월로 감싸요','전자레인지에 4분, 뒤집어 3분 돌려요','꼬치가 푹 들어가면 완성이에요']],
-['치즈 토스트','🧀','4분 · 전자레인지',[['식빵','빵'],['치즈']],['식빵에 치즈를 올려요','전자레인지에 30~40초 돌려 치즈를 녹여요','잼이나 꿀을 곁들여도 좋아요']]
+['김치 주먹밥','🍙','5분 · 불 없이',[['밥'],['김치'],['김']],['밥을 전자레인지에 데워요 (즉석밥은 1분 30초)','잘게 다진 김치와 참기름을 밥에 섞어요','동글게 뭉쳐 김을 부숴 묻혀요'],'밥'],
+['계란 간장밥','🍚','5분 · 전자레인지',[['밥'],['계란','달걀'],['김']],['밥을 데워 그릇에 담아요','내열 접시에 계란을 깨고 노른자에 이쑤시개로 구멍을 낸 뒤 랩을 씌워 40~60초 돌려요','밥 위에 올리고 간장, 참기름, 부순 김을 뿌려요'],'밥'],
+['쌈밥','🥬','5분 · 불 없이',[['쌈채소','상추','깻잎'],['쌈장'],['밥']],['쌈채소를 씻어 물기를 빼요','밥을 데워 한 숟갈씩 뭉쳐요','쌈채소에 밥과 쌈장을 올려 싸 먹어요'],'밥'],
+['김치 계란덮밥','🍳','7분 · 전자레인지',[['김치'],['계란','달걀'],['밥']],['잘게 썬 김치를 내열 그릇에 담아 1분 돌려요','풀어 둔 계란을 붓고 랩을 씌워 1분 30초 더 돌려요','데운 밥 위에 올리고 참기름을 둘러요'],'밥'],
+['불고기 덮밥','🥩','10분 · 전자레인지',[['소고기'],['밥'],['?','양파','대파']],['얇은 소고기를 간장, 설탕, 다진 마늘에 5분 재워요','내열 그릇에 고기(와 양파)를 넣고 랩을 씌워 3분 돌려요','한 번 섞어 2분 더 돌리고 속까지 익었는지 확인해요','데운 밥 위에 올려요'],'밥'],
+['멸치 주먹밥','🐟','5분 · 불 없이',[['멸치'],['밥'],['김']],['멸치볶음을 잘게 다져요','데운 밥에 멸치와 참기름을 섞어요','동글게 뭉쳐 김가루를 묻혀요'],'밥'],
+['참치 마요 주먹밥','🍙','5분 · 불 없이',[['참치'],['밥'],['김'],['?','마요네즈']],['참치의 기름을 빼요','데운 밥에 참치, 마요네즈(있으면), 소금을 섞어요','동글게 뭉쳐 김을 둘러요'],'밥'],
+['치즈 계란밥','🧀','6분 · 전자레인지',[['밥'],['계란','달걀'],['치즈']],['내열 그릇에 밥을 담고 가운데를 오목하게 만들어요','계란을 풀어 붓고 치즈를 올려요','랩을 씌워 전자레인지에 1분 30초~2분 돌려요','간장 한 방울과 참기름을 곁들여요'],'밥'],
+['새우 계란밥','🍤','8분 · 전자레인지',[['새우'],['밥'],['계란','달걀']],['새우를 해동해 물기를 닦아요','내열 그릇에 밥, 새우, 풀어 둔 계란을 담고 소금 간을 해요','랩을 씌워 3분 돌리고 새우가 분홍색으로 변했는지 확인해요'],'밥'],
+['전자레인지 파스타','🍝','12분 · 전자레인지',[['파스타','스파게티'],['?','치즈','베이컨']],['큰 내열 그릇에 면과 잠길 만큼의 물, 소금을 넣어요','랩 없이 포장지 표기 시간보다 3~4분 더 돌려요 (중간에 한 번 저어요)','물을 버리고 올리브유, 치즈, 후추로 버무려요'],'면'],
+['라면','🍜','8분 · 전자레인지',[['라면'],['?','계란','달걀']],['내열 큰 그릇에 면과 물 500ml, 스프를 넣어요','랩 없이 전자레인지에 5~6분 돌리며 한 번 저어요','계란은 풀어 넣고 30초 더 돌려요'],'면'],
+['치즈 라면','🧀','8분 · 전자레인지',[['라면'],['치즈']],['내열 큰 그릇에 면과 물 500ml, 스프를 넣어요','전자레인지에 5~6분 돌리며 한 번 저어요','치즈를 올리고 30초 더 돌려 녹여요'],'면'],
+['계란찜','🥚','5분 · 전자레인지',[['계란','달걀'],['?','대파','쪽파']],['계란 2개를 풀고 물 4큰술, 소금 약간을 섞어요','내열 그릇에 담고 랩을 씌워 구멍을 낸 뒤 전자레인지에 2분 30초(700W) 돌려요','부풀어 오르면 꺼내고, 덜 익었으면 20초씩 더 돌려요','다진 대파와 참기름을 올려요'],'찜·국물'],
+['김치 두부찜','🥬','8분 · 전자레인지',[['두부'],['김치']],['두부를 도톰하게 썰어 내열 접시에 깔아요','잘게 썬 김치를 올리고 참기름을 둘러요','랩을 씌워 전자레인지에 3분 돌려요'],'찜·국물'],
+['두부 계란찜','🥡','7분 · 전자레인지',[['두부'],['계란','달걀']],['두부를 으깨 풀어 둔 계란과 소금을 섞어요','내열 그릇에 담고 랩을 씌워 구멍을 내요','전자레인지에 2분 30초 돌리고 덜 익었으면 20초씩 더 돌려요'],'찜·국물'],
+['만두찜','🥟','6분 · 전자레인지',[['만두']],['내열 접시에 만두를 겹치지 않게 놓고 물 2큰술을 뿌려요','랩을 씌워 구멍을 낸 뒤 전자레인지에 3~4분 돌려요','간장에 식초나 고춧가루를 섞어 찍어 먹어요'],'찜·국물'],
+['삼겹살 김치찜','🥓','15분 · 전자레인지',[['삼겹살'],['김치']],['삼겹살을 해동해 얇게 썰어요','내열 용기에 김치를 깔고 삼겹살을 올려요','랩을 씌워 5분 돌리고 뒤집어 3분 더 돌려요','속까지 완전히 익었는지 확인해요'],'찜·국물'],
+['새우찜','🍤','6분 · 전자레인지',[['새우'],['?','대파','쪽파']],['새우를 해동해 물기를 닦아요','소금, 후추를 뿌려 내열 접시에 놓아요','랩을 씌워 2분 30초 돌리고 분홍색으로 변했는지 확인해요'],'찜·국물'],
+['어묵 국물','🍢','6분 · 전자레인지',[['어묵'],['?','대파','쪽파']],['어묵을 먹기 좋게 썰어 큰 내열 그릇에 담아요','물 1컵, 간장 1큰술을 붓고 랩을 씌워 3~4분 돌려요','대파가 있으면 올려요'],'찜·국물'],
+['두부 간장무침','🥡','5분 · 불 없이',[['두부'],['?','김','대파']],['두부의 물기를 빼고 한입 크기로 썰어요','간장, 참기름, 깨로 양념장을 만들어요','양념장을 올리고 김이나 대파가 있으면 뿌려요'],'반찬'],
+['시금치 두부무침','🥗','10분 · 전자레인지',[['시금치'],['두부']],['시금치를 내열 그릇에 물 2큰술과 함께 담고 랩을 씌워 2분 돌려요','찬물에 헹궈 물기를 꼭 짜고 먹기 좋게 잘라요','두부를 으깨 물기를 짜고 시금치와 소금, 참기름, 깨로 버무려요'],'반찬'],
+['콩나물 무침','🌱','8분 · 전자레인지',[['콩나물'],['?','대파','쪽파']],['콩나물을 씻어 내열 그릇에 물 3큰술과 함께 담아요','랩을 씌워 전자레인지에 4분 돌려요','물기를 빼고 소금, 참기름, 다진 대파로 무쳐요'],'반찬'],
+['오이 무침','🥒','5분 · 불 없이',[['오이'],['?','고춧가루','식초']],['오이를 얇게 썰어 소금에 5분 절여요','물기를 꼭 짜요','고춧가루(있으면), 식초, 설탕, 참기름으로 버무려요'],'반찬'],
+['가지 무침','🍆','8분 · 전자레인지',[['가지']],['가지를 길게 갈라 내열 접시에 놓고 랩을 씌워요','전자레인지에 3분 돌린 뒤 식혀 손으로 찢어요','간장, 참기름, 다진 마늘로 무쳐요'],'반찬'],
+['브로콜리 초장','🥦','6분 · 전자레인지',[['브로콜리'],['?','고추장','식초']],['브로콜리를 한입 크기로 잘라 물 2큰술과 함께 내열 그릇에 담아요','랩을 씌워 2분 30초 돌려요','고추장, 식초, 설탕을 섞은 초장에 찍어 먹어요'],'반찬'],
+['양배추 쌈','🥬','7분 · 전자레인지',[['양배추'],['쌈장']],['양배추를 잎째 떼어 내열 접시에 놓아요','랩을 씌워 전자레인지에 3분 돌려요','쌈장을 올려 싸 먹어요'],'반찬'],
+['감자 샐러드','🥔','10분 · 전자레인지',[['감자'],['?','계란','마요네즈']],['감자를 깍둑썰기해 물 2큰술과 함께 랩을 씌워 5분 돌려요','포크로 으깨고 소금, 후추를 넣어요','마요네즈와 으깬 계란이 있으면 함께 버무려요'],'반찬'],
+['토마토 계란볶음','🍅','7분 · 전자레인지',[['토마토'],['계란','달걀']],['토마토를 깍둑썰기해 내열 그릇에 담고 1분 30초 돌려요','풀어 둔 계란과 소금을 넣고 랩을 씌워 1분 30초 돌려요','한 번 저어 마저 익히고 설탕 한 꼬집을 더해요'],'반찬'],
+['호박 찜','🎃','6분 · 전자레인지',[['호박']],['호박을 먹기 좋게 썰어 내열 그릇에 담아요','랩을 씌워 전자레인지에 3분 돌려요','소금이나 쌈장을 곁들여요'],'반찬'],
+['구운 감자','🥔','8분 · 전자레인지',[['감자']],['감자를 씻어 포크로 여러 군데 찔러요','랩을 씌워 전자레인지에 4분, 뒤집어 3분 돌려요','꼬치가 푹 들어가면 소금이나 버터와 함께 먹어요'],'간식'],
+['고구마 찜','🍠','8분 · 전자레인지',[['고구마']],['고구마를 씻어 젖은 키친타월로 감싸요','전자레인지에 4분, 뒤집어 3분 돌려요','꼬치가 푹 들어가면 완성이에요'],'간식'],
+['옥수수 찜','🌽','6분 · 전자레인지',[['옥수수']],['옥수수를 껍질째 또는 랩에 싸서 내열 접시에 놓아요','전자레인지에 4~5분 돌려요','뜨거우니 식혀서 먹어요'],'간식'],
+['과일 요거트','🍓','3분 · 불 없이',[['과일','바나나','사과','딸기'],['요거트','요구르트','우유']],['과일을 한입 크기로 썰어요','컵에 요거트를 담아요','과일을 올려요'],'간식'],
+['꿀 바나나','🍌','3분 · 전자레인지',[['바나나'],['?','꿀','치즈']],['바나나를 두툼하게 썰어 내열 접시에 놓아요','전자레인지에 1분 돌려요','꿀이나 치즈를 올려 먹어요'],'간식'],
+['사과 구이','🍎','5분 · 전자레인지',[['사과'],['?','설탕','꿀']],['사과를 한입 크기로 썰어 내열 그릇에 담아요','설탕이나 꿀을 뿌리고 랩을 씌워 2분 30초 돌려요','따뜻할 때 먹어요'],'간식'],
+['치즈 토스트','🧀','4분 · 전자레인지',[['식빵','빵'],['치즈']],['식빵에 치즈를 올려요','전자레인지에 30~40초 돌려 치즈를 녹여요','잼이나 꿀을 곁들여도 좋아요'],'간식'],
+['계란 샌드위치','🥪','8분 · 전자레인지',[['식빵','빵'],['계란','달걀']],['내열 그릇에 계란을 풀고 소금을 넣어 랩을 씌우고 1분 돌린 뒤 저어 30초 더 돌려요','식힌 계란을 마요네즈(있으면)와 섞어요','식빵 사이에 끼워 반으로 잘라요'],'간식'],
+['참치 샌드위치','🥪','5분 · 불 없이',[['식빵','빵'],['참치'],['?','마요네즈']],['참치의 기름을 빼고 마요네즈(있으면)와 후추를 섞어요','식빵에 올리고 덮어요','반으로 잘라 먹어요'],'간식'],
+['따뜻한 우유','🥛','2분 · 전자레인지',[['우유'],['?','꿀','설탕']],['내열 컵에 우유를 담아요','전자레인지에 1분~1분 30초 돌려요','꿀이나 설탕을 넣어 저어요'],'음료'],
+['꿀 레몬차','🍋','3분 · 불 없이',[['레몬'],['꿀']],['레몬을 얇게 썰어 컵에 담아요','꿀을 넣고 따뜻한 물을 부어요','잘 저어 우러나게 둬요'],'음료']
 ];
-var rOff=0;
+var rOff=0,rSig="",rBatches=[];
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function makeBatches(arr){
+  var left=arr.slice(),out=[];
+  while(left.length){
+    var b=[],cats={},i;
+    for(i=0;i<left.length&&b.length<3;i++){var c=left[i].r[5];if(!cats[c]){cats[c]=1;b.push(i)}}
+    for(i=0;i<left.length&&b.length<3;i++){if(b.indexOf(i)<0)b.push(i)}
+    out.push(b.map(function(k){return left[k]}));
+    left=left.filter(function(_,k){return b.indexOf(k)<0});
+  }
+  return out;
+}
 function renderRecipes(){
   var names=S.prep.filter(function(i){return i.s!=="t"}).map(function(i){return i.n});
   function has(ks){return names.some(function(n){return ks.some(function(k){return n.indexOf(k)>-1})})}
@@ -356,19 +408,20 @@ function renderRecipes(){
   }).filter(function(x){return x.c>0})
     .sort(function(a,b){return (a.miss-b.miss)||(b.c-a.c)||(b.oc-a.oc)||a.r[0].localeCompare(b.r[0])});
   var full=list.filter(function(x){return x.miss===0});
-  if(full.length>=3)list=full;
+  var pool=full.length>=3?full:list;
   var el=$('recipes');
-  var head='<div class="rh rr"><h2 id="rTitle">🍳 식재료를 이용한 추천 레시피 3</h2>'+(list.length>3?'<button class="link" id="rMore">🔄 다른 레시피 보기</button>':'')+'</div>';
-  if(!list.length){el.innerHTML=head+'<div class="group"><div class="empty" style="border:0">🥕 식재료를 추가하면 추천 레시피가 나타나요!</div></div>';return}
-  var picks=[];
-  for(var i=0;i<Math.min(3,list.length);i++)picks.push(list[(rOff*3+i)%list.length]);
+  var head='<div class="rh rr"><h2 id="rTitle">🍳 식재료를 이용한 추천 레시피 3</h2>'+(pool.length>3?'<button class="link" id="rMore">🔄 다른 레시피 보기</button>':'')+'</div>';
+  if(!pool.length){el.innerHTML=head+'<div class="group"><div class="empty" style="border:0">🥕 식재료를 추가하면 추천 레시피가 나타나요!</div></div>';return}
+  var sig=pool.map(function(x){return x.r[0]}).join('|');
+  if(sig!==rSig){rSig=sig;rOff=0;rBatches=makeBatches(shuffle(pool.slice()))}
+  var picks=rBatches[rOff%rBatches.length];
   el.innerHTML=head+'<div class="rgrid">'+picks.map(function(x){
     var r=x.r,full=x.miss===0;
-    return '<article class="rc"><div class="rt"><span class="emo big">'+r[1]+'</span><div><b>'+esc(r[0])+'</b><small>⏱ '+esc(r[2])+'</small></div><span class="exp'+(full?'':' soon')+'">'+(full?'식재료만으로 가능 ✨':'재료 '+x.c+'/'+x.t)+'</span></div>'
+    return '<article class="rc"><div class="rt"><span class="emo big">'+r[1]+'</span><div><b>'+esc(r[0])+'</b><small>⏱ '+esc(r[2])+' · '+esc(r[5])+'</small></div><span class="exp'+(full?'':' soon')+'">'+(full?'식재료만으로 가능 ✨':'재료 '+x.c+'/'+x.t)+'</span></div>'
       +'<div class="ing">'+x.req.map(function(g,k){return '<span class="ig'+(x.m[k]?' on':'')+'">'+(x.m[k]?'✓ ':'+ ')+esc(g[0])+'</span>'}).join('')
       +x.opt.map(function(g,k){return '<span class="ig opt'+(x.om[k]?' on':'')+'">'+(x.om[k]?'✓ ':'')+'(선택) '+esc(g[0])+'</span>'}).join('')+'</div>'
       +'<details><summary>👩‍🍳 만드는 법</summary><ol>'+r[4].map(function(s){return '<li>'+esc(s)+'</li>'}).join('')+'</ol></details></article>';
-  }).join('')+'</div><p class="rnote">전자레인지나 불 없이 만들 수 있는 레시피만 골랐고, 등록한 식재료 안에서 가능한 것을 먼저 보여드려요. 소금, 간장, 기름 같은 기본 양념은 있다고 가정했어요. 전자레인지 시간은 700W 기준이니 기종에 따라 조절하고, 고기와 해산물은 속까지 익었는지 꼭 확인하세요.</p>';
+  }).join('')+'</div><p class="rnote">전자레인지나 불 없이 만들 수 있는 레시피만 골랐고, 등록한 식재료 안에서 가능한 것을 먼저 보여드려요. 밥, 면, 찜, 반찬, 간식처럼 종류가 겹치지 않게 섞어 보여드려요. 소금, 간장, 기름 같은 기본 양념은 있다고 가정했어요. 전자레인지 시간은 700W 기준이니 기종에 따라 조절하고, 고기와 해산물은 속까지 익었는지 꼭 확인하세요.</p>';
 }
 $('recipes').addEventListener('click',function(e){if(e.target.closest('#rMore')){rOff++;renderRecipes()}});
 var NAMES=["엘리자벳","크리티컬","루크","신수"];var WO={};
@@ -383,7 +436,7 @@ function peopleHtml(only){
     var opts=(n==="미정"?["미정"]:[]).concat(NAMES);
     return '<div class="group g-t"><div class="gh"><h2>'+(n==="미정"?"❓ ":({"엘리자벳":"👩","신수":"👩","크리티컬":"👨","루크":"👨"}[n]||"🙋")+" ")+n+'</h2><button class="plus" data-padd="'+n+'" aria-label="'+n+' 준비물 추가">+</button><span>'+items.length+'개</span></div>'
     +(items.length?'<ul>'+items.map(function(i){
-      return '<li class="row'+(i.d?' done':'')+'"><label><input type="checkbox" data-chk="'+i.id+'"'+(i.d?' checked':'')+'><span class="emo">'+emo(i.n,i.s)+'</span><span class="nm">'+esc(i.n)+'</span></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
+      return '<li class="row'+(i.d?' done':'')+'"><label><input type="checkbox" data-chk="'+i.id+'"'+(i.d?' checked':'')+'><span class="emo">'+emo(i.n,i.s)+'</span><span class="nm">'+esc(i.n)+'</span></label><span class="qa"><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'</span>'+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
     }).join('')+'</ul>':'<div class="empty">🫙 아직 없어요. 이름 옆에서 바로 추가하세요.</div>')
     +'</div>';
   }).join('')+'</div>';
@@ -440,7 +493,7 @@ function renderPrep(){
     html+='<div class="group g-'+s+'"><div class="gh"><h2>'+META[s][2]+' '+META[s][0]+'</h2><button class="plus" data-cadd="'+s+'" aria-label="'+META[s][0]+' 추가">+</button><span>'+items.length+'개</span></div>';
     if(!items.length)html+='<div class="empty">🫙 텅 비었어요! ➕ 버튼으로 추가해 보세요.</div>';
     else html+="<ul>"+items.map(function(i){
-      return '<li class="row"><label><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="식재료 이름" size="8" maxlength="20"></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
+      return '<li class="row"><label><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="식재료 이름" size="8" maxlength="20"></label><span class="qa"><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'</span>'+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
     }).join("")+"</ul>";
     html+="</div>";B[s]=html;
   });
@@ -512,7 +565,7 @@ function chipBtn(v,t){return '<button class="chip'+(v==="all"||v==="t"?' cg-h':'
 function prepChips(){
   var el=$("prepChips");
   var foods=[["f","🧊 냉동 식재료"],["c","🥬 냉장 식재료"],["r","🍞 실온 식재료"],["b","🥗 반찬"],["s","🍪 간식"],["m","🧂 조미료"]];
-  el.innerHTML='<div class="cg">'+chipBtn("all","🍽️ 전체")+'<div class="cg-b">'+foods.map(function(o){return chipBtn(o[0],o[1])}).join("")+'</div></div>'
+  el.innerHTML='<div class="cg">'+chipBtn("all","🍽️ 전체 식재료")+'<div class="cg-b">'+foods.map(function(o){return chipBtn(o[0],o[1])}).join("")+'</div></div>'
     +'<div class="cg">'+chipBtn("t","🥄 준비물")+'<div class="cg-b four">'+NAMES.map(function(n){return chipBtn("t:"+n,(PEMJ[n]||"🙋")+" "+n)}).join("")+'</div></div>';
   Array.prototype.forEach.call(el.querySelectorAll(".chip"),function(b){b.onclick=function(){pf=b.dataset.v;renderPrep()}});
 }
@@ -537,7 +590,7 @@ function openDlg(s,who){
   $("dName").value="";$("dQty").value="";$("dErr").hidden=true;$("dEmo").textContent=META[s]?META[s][2]:"🍽️";
   $("dDate").value=d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate());
   $("dTime").value=two(d.getHours())+":"+two(d.getMinutes());
-  $("dlg").hidden=false;curMax=who?15:20;$("dName").maxLength=curMax;$("dName").style.fontSize="";$("dCnt").textContent="0/"+curMax;$("dName").focus();
+  $("dlg").hidden=false;curMax=20;$("dName").maxLength=curMax;$("dName").style.fontSize="";$("dCnt").textContent="0/"+curMax;$("dName").focus();
 }
 function closeDlg(){$("dlg").hidden=true;curCat=null}
 function saveDlg(){
