@@ -221,6 +221,8 @@ li.row:hover .emo{transform:scale(1.3) rotate(-8deg)}
   </div>
 </main>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 var KEY="lunch4-v1";
 var META={f:["냉동 식재료","−18°","🧊"],c:["냉장 식재료","3°","🥬"],r:["실온 식재료","","🍞"],b:["반찬","","🥗"],s:["간식","","🍪"],m:["조미료","","🧂"],t:["준비물","","🥄"]};
@@ -489,23 +491,33 @@ $("dlg").addEventListener("keydown",function(e){
 
 
 show(tab);
-(async function(){
+var FB_CONFIG={
+  apiKey:"AIzaSyDxbpnMhZD6d-X-rJBR7IuCm3C9aVFzkwY",
+  authDomain:"wolyo-maesikhoe.firebaseapp.com",
+  projectId:"wolyo-maesikhoe",
+  storageBucket:"wolyo-maesikhoe.firebasestorage.app",
+  messagingSenderId:"24816649220",
+  appId:"1:24816649220:web:abe5c0a0bb0ec8fac26151"
+};
+var ROOM="7qnbfb1663pdx6178jrihu3xjf1m8kyb";
+(function(){
   try{
-    if(!window.claude||!window.claude.use)return;
-    DB=await window.claude.use("db");
-    if(!DB)return;
-    docRef=DB.doc("lunch/main");
+    if(!window.firebase)throw new Error("firebase not loaded");
+    firebase.initializeApp(FB_CONFIG);
+    var db=firebase.firestore();
+    docRef=db.collection("rooms").doc(ROOM);
     setSync("동기화 연결 중…");
     docRef.onSnapshot(function(snap){
       setSync("모든 기기와 동기화됨");
-      if(dirty||!snap.exists)return;
+      if(dirty)return;
+      if(!snap.exists){save();return}
       var d=snap.data();
       if(!d||!d.prep||!d.fridge)return;
       var next=JSON.parse(JSON.stringify({people:d.people||4,prep:d.prep,fridge:d.fridge,v:d.v}));var chg=migrate(next);
       if(JSON.stringify(next)===JSON.stringify(S))return;
       S=next;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(chg)save();
       show(tab);
-    },function(){setSync("이 기기에만 저장")});
+    },function(){setSync("동기화 연결 실패 · 이 기기에만 저장됨")});
   }catch(e){setSync("이 기기에만 저장")}
 })();
 </script>
