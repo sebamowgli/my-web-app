@@ -31,7 +31,7 @@
 }
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:16px;line-height:1.55}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Jua","Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:16.5px;line-height:1.5;letter-spacing:.01em}
 main{max-width:860px;margin:0 auto;padding:20px 16px 48px}
 h1{font-size:1.6rem;margin:4px 0 2px;letter-spacing:-.01em}
 .sub{color:var(--muted);margin:0 0 18px}
@@ -179,6 +179,8 @@ li.row:hover .emo{transform:scale(1.3) rotate(-8deg)}
 .qe:hover,.qe:focus{background:var(--bg);border-color:var(--line)}
 .ne{font:inherit;color:var(--ink);background:transparent;border:1px solid transparent;border-bottom:1px dashed var(--line);border-radius:6px;padding:2px 6px;flex:1;min-width:0}
 .ne:hover,.ne:focus{background:var(--bg);border-color:var(--line)}
+.cnt{align-self:flex-end;font-size:.75rem;color:var(--muted)}
+.nm{overflow-wrap:anywhere;line-height:1.25}
 .dlg{position:fixed;inset:0;background:rgba(10,20,24,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
 .dbox{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:22px;padding:18px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:12px}
 .dbox h2{margin:0;font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400;font-size:1.3rem}
@@ -213,7 +215,7 @@ li.row:hover .emo{transform:scale(1.3) rotate(-8deg)}
   <div id="dlg" class="dlg" hidden>
     <div class="dbox" role="dialog" aria-modal="true" aria-labelledby="dTitle">
       <h2 id="dTitle">식재료 추가</h2>
-      <label><span id="dNameL">식재료 이름</span> <span class="ei"><input id="dName" placeholder="예: 삼겹살" autocomplete="off"><span id="dEmo" class="emo">🍽️</span></span></label>
+      <label><span id="dNameL">식재료 이름</span> <span class="ei"><input id="dName" placeholder="예: 삼겹살" autocomplete="off" maxlength="20"><span id="dEmo" class="emo">🍽️</span></span><small id="dCnt" class="cnt">0/20</small></label>
       <label>수량 <input id="dQty" placeholder="예: 600g, 2개" autocomplete="off"></label>
       <div class="dt"><label>날짜 (자동) <input id="dDate" readonly></label><label>시간 (자동) <input id="dTime" readonly></label></div>
       <p class="derr" id="dErr" hidden>이름과 수량을 모두 입력해 주세요.</p>
@@ -352,7 +354,7 @@ function peopleHtml(){
     var opts=(n==="미정"?["미정"]:[]).concat(NAMES);
     return '<div class="group g-t"><div class="gh"><h2>'+(n==="미정"?"❓ ":({"엘리자벳":"👩","신수":"👩","크리티컬":"👨","루크":"👨"}[n]||"🙋")+" ")+n+'</h2><button class="plus" data-padd="'+n+'" aria-label="'+n+' 준비물 추가">+</button><span>'+items.length+'개</span></div>'
     +(items.length?'<ul>'+items.map(function(i){
-      return '<li class="row'+(i.d?' done':'')+'"><label><input type="checkbox" data-chk="'+i.id+'"'+(i.d?' checked':'')+'><span class="emo">'+emo(i.n,i.s)+'</span><span class="nm">'+esc(i.n)+'</span></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
+      return '<li class="row'+(i.d?' done':'')+'"><label><input type="checkbox" data-chk="'+i.id+'"'+(i.d?' checked':'')+'><span class="emo">'+emo(i.n,i.s)+'</span><span class="nm" style="font-size:'+nmSize(i.n)+'">'+esc(i.n)+'</span></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
     }).join('')+'</ul>':'<div class="empty">🫙 아직 없어요. 이름 옆에서 바로 추가하세요.</div>')
     +'</div>';
   }).join('')+'</div>';
@@ -408,14 +410,16 @@ function renderPrep(){
     html+='<div class="group g-'+s+'"><div class="gh"><h2>'+META[s][2]+' '+META[s][0]+'</h2><button class="plus" data-cadd="'+s+'" aria-label="'+META[s][0]+' 추가">+</button><span>'+items.length+'개</span></div>';
     if(!items.length)html+='<div class="empty">🫙 텅 비었어요! ➕ 버튼으로 추가해 보세요.</div>';
     else html+="<ul>"+items.map(function(i){
-      return '<li class="row"><label><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="식재료 이름" size="8"></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
+      return '<li class="row"><label><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="식재료 이름" size="8" maxlength="20"></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
     }).join("")+"</ul>";
     html+="</div>";B[s]=html;
   });
   var tb=S.prep.filter(function(i){return i.s==="t"}),td=tb.filter(function(i){return i.d}).length;
   var fb=S.prep.filter(function(i){return i.s!=="t"}),fd=fb.filter(function(i){return i.d}).length;
   $("prepList").innerHTML=(pf!=="t"?'<div class="rh"><h2>🥕 식재료</h2><span class="qty">'+fb.length+'개</span></div>':'')+kit(B,["f","c","r"],["b","s","m"])+(B.t?'<section class="sec"><div class="rh"><h2>🥄 준비물</h2><span class="qty">'+tb.length+'개</span></div>'+peopleHtml()+'</section>':'');
+  $("recipes").hidden=(pf!=="all");
   renderRecipes();
+  fitAll();
 }
 
 function dday(e){
@@ -468,6 +472,15 @@ $("prepList").addEventListener("change",function(e){
   var id=e.target.dataset.chk;if(!id)return;
   S.prep.forEach(function(i){if(i.id===id)i.d=e.target.checked});save();renderPrep();
 });
+function fitInput(el){
+  el.style.fontSize="";
+  var size=parseFloat(getComputedStyle(el).fontSize);
+  while(el.scrollWidth>el.clientWidth+1&&size>10){size-=0.5;el.style.fontSize=size+"px"}
+}
+function fitAll(){document.querySelectorAll(".ne").forEach(fitInput)}
+function nmSize(n){return n.length>16?".78em":n.length>12?".88em":"1em"}
+window.addEventListener("resize",fitAll);
+$("prepList").addEventListener("input",function(e){if(e.target.classList.contains("ne"))fitInput(e.target)});
 var curCat=null;
 function two(n){return String(n).padStart(2,"0")}
 function atStr(at){if(!at)return"";var d=new Date(at);return (d.getMonth()+1)+"/"+d.getDate()+" "+two(d.getHours())+":"+two(d.getMinutes())}
@@ -481,11 +494,11 @@ function openDlg(s,who){
   $("dName").value="";$("dQty").value="";$("dErr").hidden=true;$("dEmo").textContent=META[s]?META[s][2]:"🍽️";
   $("dDate").value=d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate());
   $("dTime").value=two(d.getHours())+":"+two(d.getMinutes());
-  $("dlg").hidden=false;$("dName").focus();
+  $("dlg").hidden=false;$("dName").style.fontSize="";$("dCnt").textContent="0/20";$("dName").focus();
 }
 function closeDlg(){$("dlg").hidden=true;curCat=null}
 function saveDlg(){
-  var n=$("dName").value.trim(),q=$("dQty").value.trim();
+  var n=$("dName").value.trim().slice(0,20),q=$("dQty").value.trim();
   if(!n||!q){$("dErr").hidden=false;(n?$("dQty"):$("dName")).focus();return}
   var it={id:uid(),n:n,s:curCat,p:0,u:"",f:q,d:false,at:new Date().toISOString()};
   if(curCat==="t")it.o=curOwn;
@@ -493,7 +506,7 @@ function saveDlg(){
   save();closeDlg();renderPrep();
 }
 $("dOk").onclick=saveDlg;$("dCancel").onclick=closeDlg;
-$("dName").oninput=function(){var v=this.value.trim();$("dEmo").textContent=emo(v,curCat||"c")};
+$("dName").oninput=function(){var v=this.value.trim();$("dEmo").textContent=emo(v,curCat||"c");$("dCnt").textContent=this.value.length+"/20";fitInput(this)};
 $("dlg").addEventListener("click",function(e){if(e.target===$("dlg"))closeDlg()});
 $("dlg").addEventListener("keydown",function(e){
   if(e.key==="Escape")closeDlg();
