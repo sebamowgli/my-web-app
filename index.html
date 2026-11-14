@@ -177,6 +177,8 @@ li.row:hover .emo{transform:scale(1.3) rotate(-8deg)}
 .at{color:var(--muted);font-size:.72rem;white-space:nowrap}
 .qe{font:inherit;font-size:.9rem;color:var(--ink);background:transparent;border:1px solid transparent;border-bottom:1px dashed var(--line);border-radius:6px;padding:2px 6px;width:5.5em;text-align:right;min-width:0}
 .qe:hover,.qe:focus{background:var(--bg);border-color:var(--line)}
+.ne{font:inherit;color:var(--ink);background:transparent;border:1px solid transparent;border-bottom:1px dashed var(--line);border-radius:6px;padding:2px 6px;flex:1;min-width:0}
+.ne:hover,.ne:focus{background:var(--bg);border-color:var(--line)}
 .dlg{position:fixed;inset:0;background:rgba(10,20,24,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
 .dbox{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:22px;padding:18px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:12px}
 .dbox h2{margin:0;font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400;font-size:1.3rem}
@@ -206,7 +208,6 @@ li.row:hover .emo{transform:scale(1.3) rotate(-8deg)}
     <div class="chips" id="prepChips"></div>
     <section id="recipes"></section>
     <div id="prepList"></div>
-    <div class="row-actions"><button class="link" id="resetChecks">🔄 체크 모두 해제</button></div>
   </section>
 
   <div id="dlg" class="dlg" hidden>
@@ -248,7 +249,7 @@ var S;
 try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
 function migrate(s){
   var r2=migrate2(s),r3=false;
-  if(!(s.v>=3)){var k=0,NM=["조화","김사","홍미","신수"];s.prep.forEach(function(i){if(i.s==="t"&&!i.o)i.o=NM[k++%NM.length]});s.v=3;r3=true}
+  if(!(s.v>=3)){var k=0,NM=["엘리자벳","크리티컬","루크","신수"];s.prep.forEach(function(i){if(i.s==="t"&&!i.o)i.o=NM[k++%NM.length]});s.v=3;r3=true}
   var r4=false;
   if(!(s.v>=4)){
     s.prep.forEach(function(i){if(i.n==="참기름·소금"||i.n==="쌈장")i.s="m"});
@@ -257,7 +258,16 @@ function migrate(s){
     }
     s.v=4;r4=true;
   }
-  return r2||r3||r4;
+  var r5=false;
+  if(!(s.v>=5)){
+    var RN={"조화":"엘리자벳","김사":"크리티컬","홍미":"루크"};
+    s.prep.forEach(function(i){
+      if(i.o&&RN[i.o])i.o=RN[i.o];
+      if(i.w)i.w=i.w.map(function(n){return RN[n]||n});
+    });
+    s.v=5;r5=true;
+  }
+  return r2||r3||r4||r5;
 }
 function migrate2(s){
   if(s.v>=2)return false;
@@ -331,7 +341,7 @@ function renderRecipes(){
   }).join('')+'</div><p class="rnote">전자레인지나 불 없이 만들 수 있는 레시피만 골랐고, 등록한 식재료 안에서 가능한 것을 먼저 보여드려요. 소금, 간장, 기름 같은 기본 양념은 있다고 가정했어요. 전자레인지 시간은 700W 기준이니 기종에 따라 조절하고, 고기와 해산물은 속까지 익었는지 꼭 확인하세요.</p>';
 }
 $('recipes').addEventListener('click',function(e){if(e.target.closest('#rMore')){rOff++;renderRecipes()}});
-var NAMES=["조화","김사","홍미","신수"];var WO={};
+var NAMES=["엘리자벳","크리티컬","루크","신수"];var WO={};
 function ownOf(i){return NAMES.indexOf(i.o)<0?"미정":i.o}
 function peopleHtml(){
   var un=S.prep.some(function(i){return i.s==="t"&&ownOf(i)==="미정"});
@@ -340,7 +350,7 @@ function peopleHtml(){
     var items=S.prep.filter(function(i){return i.s==="t"&&ownOf(i)===n});
     var d=items.filter(function(i){return i.d}).length;
     var opts=(n==="미정"?["미정"]:[]).concat(NAMES);
-    return '<div class="group g-t"><div class="gh"><h2>'+(n==="미정"?"❓ ":({"조화":"👩","신수":"👩","김사":"👨","홍미":"👨"}[n]||"🙋")+" ")+n+'</h2><button class="plus" data-padd="'+n+'" aria-label="'+n+' 준비물 추가">+</button><span>'+items.length+'개</span></div>'
+    return '<div class="group g-t"><div class="gh"><h2>'+(n==="미정"?"❓ ":({"엘리자벳":"👩","신수":"👩","크리티컬":"👨","루크":"👨"}[n]||"🙋")+" ")+n+'</h2><button class="plus" data-padd="'+n+'" aria-label="'+n+' 준비물 추가">+</button><span>'+items.length+'개</span></div>'
     +(items.length?'<ul>'+items.map(function(i){
       return '<li class="row'+(i.d?' done':'')+'"><label><input type="checkbox" data-chk="'+i.id+'"'+(i.d?' checked':'')+'><span class="emo">'+emo(i.n,i.s)+'</span><span class="nm">'+esc(i.n)+'</span></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
     }).join('')+'</ul>':'<div class="empty">🫙 아직 없어요. 이름 옆에서 바로 추가하세요.</div>')
@@ -398,7 +408,7 @@ function renderPrep(){
     html+='<div class="group g-'+s+'"><div class="gh"><h2>'+META[s][2]+' '+META[s][0]+'</h2><button class="plus" data-cadd="'+s+'" aria-label="'+META[s][0]+' 추가">+</button><span>'+items.length+'개</span></div>';
     if(!items.length)html+='<div class="empty">🫙 텅 비었어요! ➕ 버튼으로 추가해 보세요.</div>';
     else html+="<ul>"+items.map(function(i){
-      return '<li class="row"><label><span class="emo">'+emo(i.n,i.s)+'</span><span class="nm">'+esc(i.n)+'</span></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
+      return '<li class="row"><label><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="식재료 이름" size="8"></label><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
     }).join("")+"</ul>";
     html+="</div>";B[s]=html;
   });
@@ -437,7 +447,6 @@ function renderFridge(){
 
 function show(){renderPrep()}
 
-$("resetChecks").onclick=function(){S.prep.forEach(function(i){i.d=false});save();renderPrep()};
 
 $("prepList").addEventListener("click",function(e){
   var pa=e.target.closest("[data-padd]");
@@ -448,6 +457,8 @@ $("prepList").addEventListener("click",function(e){
   if(del){S.prep=S.prep.filter(function(i){return i.id!==del.dataset.del});save();renderPrep()}
 });
 $("prepList").addEventListener("change",function(e){
+  var ne=e.target.dataset.name;
+  if(ne){var nv=e.target.value.trim();if(!nv){renderPrep();return}S.prep.forEach(function(i){if(i.id===ne)i.n=nv});save();renderPrep();return}
   var qe=e.target.dataset.qty;
   if(qe){S.prep.forEach(function(i){if(i.id===qe){i.p=0;i.f=e.target.value.trim()}});save();return}
   var ow=e.target.dataset.own;
