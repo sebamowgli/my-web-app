@@ -281,17 +281,29 @@ li.row[data-by]{background:var(--pi)}
 .exg{display:flex;align-items:center;gap:4px;font-size:.8rem;color:var(--muted)}
 .xe{font:inherit;font-size:.9rem;width:7.8em;color:var(--ink);background:transparent;border:1px solid transparent;border-bottom:1px dashed var(--line);border-radius:6px;padding:1px 4px}
 .xe:hover,.xe:focus{background:var(--bg);border-color:var(--line)}
+.tm{--m1:light-dark(#FFF6B0,#4A4618);--m2:light-dark(#DDF8B4,#2A4A22);--mb:light-dark(#F2DE55,#7A7425);background:linear-gradient(135deg,var(--m1),var(--m2));border:2px solid var(--mb);border-radius:22px;padding:14px;margin:0 0 20px;box-shadow:0 4px 0 -1px var(--mb)}
+.tm-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+.tm-h h2{font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400;font-size:1.4rem;margin:0}
+.tm-d{font-size:.95rem;color:var(--muted);white-space:nowrap}
+#tmText{width:100%;font:inherit;font-size:1.15rem;line-height:1.4;color:var(--ink);background:light-dark(rgba(255,255,255,.75),rgba(0,0,0,.25));border:2px dashed var(--mb);border-radius:16px;padding:10px 12px;resize:vertical;min-height:4.6em}
+#tmText:focus{outline:none;border-style:solid}
+.tm-f{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:.8rem;color:var(--muted)}
 </style>
 </head>
 <body>
 <main>
   <div class="deco" aria-hidden="true"><span>🍙</span><span>🥟</span><span>🍳</span><span>🥗</span><span>🍜</span><span>🍰</span></div>
-  <div class="hrow"><h1>월요매식회 🥢</h1><small class="vtag">Version 9.0</small></div>
+  <div class="hrow"><h1>월요매식회 🥢</h1><small class="vtag">Version 9.1</small></div>
   <p class="sub" id="subt">오늘 점심은 뭘로? 🍴 챙길 것은 쏙쏙, 냉장고 속은 한눈에!</p>
   <p class="sub" id="sync" style="margin-top:-12px;font-size:.85rem">이 기기에만 저장</p>
 
   <section id="prepView">
     <div class="chips" id="prepChips"></div>
+    <section id="tomorrow" class="tm">
+      <div class="tm-h"><h2 id="tmTitle">🍋 내일의 메뉴</h2><span id="tmDate" class="tm-d"></span></div>
+      <textarea id="tmText" rows="3" maxlength="120" placeholder="예: 닭가슴살 샐러드 + 레몬에이드 🍋" aria-label="내일의 메뉴"></textarea>
+      <div class="tm-f"><span id="tmMeta"></span><span id="tmCnt">0/120</span></div>
+    </section>
     <section id="recipes"></section>
     <div id="prepList"></div>
   </section>
@@ -370,6 +382,7 @@ function migrate2(s){
   return true;
 }
 if(!S||!S.prep||!S.fridge)S=defaults();
+if(!S.menu)S.menu={t:"",for:"",at:""};
 if(migrate(S))save();
 var DB=null,docRef=null,timer=null,dirty=false;
 function setSync(t){var e=document.getElementById("sync");if(e)e.textContent=t}
@@ -378,7 +391,7 @@ function save(){
   if(!docRef)return;
   dirty=true;clearTimeout(timer);
   timer=setTimeout(function(){
-    docRef.set({people:S.people,prep:S.prep,fridge:S.fridge,v:S.v}).then(function(){dirty=false;setSync("모든 기기와 동기화됨")},function(){dirty=false;setSync("동기화 실패 · 이 기기에만 저장됨")});
+    docRef.set({people:S.people,prep:S.prep,fridge:S.fridge,v:S.v,menu:S.menu||{t:"",for:"",at:""}}).then(function(){dirty=false;setSync("모든 기기와 동기화됨")},function(){dirty=false;setSync("동기화 실패 · 이 기기에만 저장됨")});
   },400);
 }
 
@@ -550,6 +563,8 @@ function renderPrep(){
   var fb=S.prep.filter(function(i){return i.s!=="t"}),fd=fb.filter(function(i){return i.d}).length;
   $("prepList").innerHTML=(!pt?'<section class="big"><div class="bh bf"><h2>🥕 식재료</h2><span class="qty">'+fb.length+'개</span></div>'+kit(B,["f","c","r"],["b","s","m"])+'</section>':'')+(B.t?'<section class="big sec"><div class="bh bp"><h2>🥄 준비물</h2><span class="qty">'+tb.length+'개</span></div>'+peopleHtml(pf.indexOf("t:")===0?pf.slice(2):"")+'</section>':'');
   $("recipes").hidden=(pf!=="all");
+  $("tomorrow").hidden=(pf!=="all");
+  renderMenu();
   renderRecipes();
   fitAll();
   restoreScroll(sc);
@@ -670,6 +685,33 @@ function limitLists(){
   });
 }
 function fmtDate(el){var d=el.value.replace(/\D/g,"").slice(0,8);var o=d.slice(0,4);if(d.length>4)o+="-"+d.slice(4,6);if(d.length>6)o+="-"+d.slice(6,8);el.value=o}
+function ymdL(d){return d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate())}
+var WD=["일","월","화","수","목","금","토"];
+var tmTimer=null;
+function renderMenu(){
+  var now=new Date(),tm=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+  var today=ymdL(now),tomorrow=ymdL(tm),m=S.menu||{t:"",for:"",at:""};
+  var show=!!(m.for&&m.for>=today);
+  var f=show?m.for:tomorrow;
+  var fd=new Date(+f.slice(0,4),+f.slice(5,7)-1,+f.slice(8,10));
+  var label=f===tomorrow?"내일":(f===today?"오늘":(fd.getMonth()+1)+"/"+fd.getDate());
+  $("tmTitle").textContent="🍋 "+label+"의 메뉴";
+  $("tmDate").textContent=(fd.getMonth()+1)+"/"+fd.getDate()+" ("+WD[fd.getDay()]+")";
+  var ta=$("tmText");
+  if(document.activeElement!==ta)ta.value=show?m.t:"";
+  $("tmCnt").textContent=ta.value.length+"/120";
+  $("tmMeta").textContent=(show&&m.at)?"마지막 수정 "+atStr(m.at):"";
+}
+function saveMenu(){
+  clearTimeout(tmTimer);
+  var ta=$("tmText"),now=new Date(),tm=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+  var cur=S.menu||{t:"",for:"",at:""};
+  var f=(cur.for&&cur.for>=ymdL(now))?cur.for:ymdL(tm);
+  S.menu={t:ta.value.slice(0,120),for:f,at:new Date().toISOString()};
+  save();renderMenu();
+}
+$("tmText").addEventListener("input",function(){$("tmCnt").textContent=this.value.length+"/120";clearTimeout(tmTimer);tmTimer=setTimeout(saveMenu,900)});
+$("tmText").addEventListener("change",saveMenu);
 var curMax=20;
 function nmSize(n){return n.length>16?".78em":n.length>12?".88em":"1em"}
 window.addEventListener("resize",fitAll);
@@ -739,7 +781,7 @@ var ROOM="7qnbfb1663pdx6178jrihu3xjf1m8kyb";
       if(!snap.exists){save();return}
       var d=snap.data();
       if(!d||!d.prep||!d.fridge)return;
-      var next=JSON.parse(JSON.stringify({people:d.people||4,prep:d.prep,fridge:d.fridge,v:d.v}));var chg=migrate(next);
+      var next=JSON.parse(JSON.stringify({people:d.people||4,prep:d.prep,fridge:d.fridge,v:d.v,menu:d.menu||{t:"",for:"",at:""}}));var chg=migrate(next);
       if(JSON.stringify(next)===JSON.stringify(S))return;
       S=next;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(chg)save();
       show(tab);
