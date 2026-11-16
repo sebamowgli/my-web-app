@@ -253,12 +253,31 @@ li.done .ne{text-decoration:line-through;color:var(--muted)}
 .qe{width:4.6em;font-size:1.1rem}
 .dbox{max-width:420px}
 .dbox input{font-size:1.25rem}
+.cg-b,.cg-b.four{grid-template-columns:repeat(2,minmax(0,1fr))}
+#prepChips .chip{flex-direction:row;justify-content:flex-start;gap:6px;font-size:1.2rem;padding:9px 12px;border-radius:18px;text-align:left}
+#prepChips .cl{min-width:0}
+#prepChips .ce{font-size:1.35em;flex:0 0 auto}
+#prepChips .chip[data-v="all"],#prepChips .chip[data-v="t"]{justify-content:center}
+[data-p="엘리자벳"],[data-by="엘리자벳"]{--pb:light-dark(#F8EEFC,#36223F);--ph:light-dark(#E9C9F5,#5A2F6E);--pi:light-dark(#F0DDF8,#46294F);--pa:light-dark(#9A3FC0,#E0A8F5)}
+[data-p="신수"],[data-by="신수"]{--pb:light-dark(#EEF0FF,#232A4A);--ph:light-dark(#CBD3FF,#343F7A);--pi:light-dark(#DDE2FF,#2C3560);--pa:light-dark(#4350C8,#A5B2FF)}
+[data-p="크리티컬"],[data-by="크리티컬"]{--pb:light-dark(#FFFBE3,#3A3416);--ph:light-dark(#FFF0A0,#5A4E12);--pi:light-dark(#FFF5BD,#4A4218);--pa:light-dark(#9A7600,#FFE066)}
+[data-p="루크"],[data-by="루크"]{--pb:light-dark(#EAFBF8,#1B3A36);--ph:light-dark(#BEEFE6,#1F5A52);--pi:light-dark(#D3F5EE,#234A44);--pa:light-dark(#0F8F7B,#6FE0CC)}
+.group[data-p]{background:var(--pb)}
+.group[data-p] .gh{background:var(--ph);color:var(--ink)}
+.group[data-p] .plus{color:var(--pa)}
+.group[data-p] .ne,.group[data-p] .qe{background:var(--pi)}
+li.row[data-by]{background:var(--pi)}
+#prepChips .chip[data-p]{background:var(--pi);border-color:var(--ph);color:var(--ink)}
+#prepChips .chip[data-p][aria-pressed="true"]{background:var(--ph);border-color:var(--pa);color:var(--ink)}
+.dbox select{font:inherit;font-size:1.25rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;width:100%}
+.qa .at,.sec .qa .at{display:flex;justify-content:space-between;gap:8px;padding:0 6px}
+.at .ts{margin-left:auto}
 </style>
 </head>
 <body>
 <main>
   <div class="deco" aria-hidden="true"><span>🍙</span><span>🥟</span><span>🍳</span><span>🥗</span><span>🍜</span><span>🍰</span></div>
-  <div class="hrow"><h1>월요매식회 🥢</h1><small class="vtag">Version 7.2</small></div>
+  <div class="hrow"><h1>월요매식회 🥢</h1><small class="vtag">Version 8.2</small></div>
   <p class="sub" id="subt">오늘 점심은 뭘로? 🍴 챙길 것은 쏙쏙, 냉장고 속은 한눈에!</p>
   <p class="sub" id="sync" style="margin-top:-12px;font-size:.85rem">이 기기에만 저장</p>
 
@@ -273,6 +292,8 @@ li.done .ne{text-decoration:line-through;color:var(--muted)}
       <h2 id="dTitle">식재료 추가</h2>
       <label><span id="dNameL">식재료 이름</span> <span class="ei"><input id="dName" placeholder="예: 삼겹살" autocomplete="off" maxlength="20"><span id="dEmo" class="emo">🍽️</span></span><small id="dCnt" class="cnt">0/20</small></label>
       <label>수량 <input id="dQty" placeholder="예: 600g, 2개" autocomplete="off"></label>
+      <label id="dCatWrap" hidden>식재료에도 기록 (선택) <select id="dCat"><option value="">선택 안 함</option><option value="f">🧊 냉동 식재료</option><option value="c">🥬 냉장 식재료</option><option value="r">🍞 실온 식재료</option><option value="b">🥗 반찬</option><option value="s">🍪 간식</option><option value="m">🧂 조미료</option></select></label>
+      <label id="dExpWrap" hidden>유통기한 (선택) <input id="dExp" placeholder="예: 2026-11-16" inputmode="numeric" maxlength="10" autocomplete="off"></label>
       <div class="dt"><label>날짜 (자동) <input id="dDate" readonly></label><label>시간 (자동) <input id="dTime" readonly></label></div>
       <p class="derr" id="dErr" hidden>이름과 수량을 모두 입력해 주세요.</p>
       <div class="dact"><button type="button" class="link" id="dCancel">취소</button><button type="button" class="okbtn" id="dOk" aria-label="추가">+</button></div>
@@ -444,9 +465,9 @@ function peopleHtml(only){
     var items=S.prep.filter(function(i){return i.s==="t"&&ownOf(i)===n});
     var d=items.filter(function(i){return i.d}).length;
     var opts=(n==="미정"?["미정"]:[]).concat(NAMES);
-    return '<div class="group g-t"><div class="gh"><h2>'+(n==="미정"?"❓ ":({"엘리자벳":"👩","신수":"👩","크리티컬":"👨","루크":"👨"}[n]||"🙋")+" ")+n+'</h2><button class="plus" data-padd="'+n+'" aria-label="'+n+' 준비물 추가">+</button><span>'+items.length+'개</span></div>'
+    return '<div class="group g-t" data-p="'+n+'"><div class="gh"><h2>'+(n==="미정"?"❓ ":({"엘리자벳":"👩","신수":"👩‍🦰","크리티컬":"👨","루크":"👱‍♂️"}[n]||"🙋")+" ")+n+'</h2><button class="plus" data-padd="'+n+'" aria-label="'+n+' 준비물 추가">+</button><span>'+items.length+'개</span></div>'
     +(items.length?'<ul>'+items.map(function(i){
-      return '<li class="row'+(i.d?' done':'')+'"><div class="lbl"><input type="checkbox" data-chk="'+i.id+'"'+(i.d?' checked':'')+'><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="준비물 이름" size="8" maxlength="20"></div><span class="qa"><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'</span>'+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
+      return '<li class="row'+(i.d?' done':'')+'"><div class="lbl"><input type="checkbox" data-chk="'+i.id+'"'+(i.d?' checked':'')+'><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="준비물 이름" size="8" maxlength="20"></div><span class="qa"><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+atHtml(i)+'</span>'+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
     }).join('')+'</ul>':'<div class="empty">🫙 아직 없어요. 이름 옆에서 바로 추가하세요.</div>')
     +'</div>';
   }).join('')+'</div>';
@@ -503,7 +524,7 @@ function renderPrep(){
     html+='<div class="group g-'+s+'"><div class="gh"><h2>'+META[s][2]+' '+META[s][0]+'</h2><button class="plus" data-cadd="'+s+'" aria-label="'+META[s][0]+' 추가">+</button><span>'+items.length+'개</span></div>';
     if(!items.length)html+='<div class="empty">🫙 텅 비었어요! ➕ 버튼으로 추가해 보세요.</div>';
     else html+="<ul>"+items.map(function(i){
-      return '<li class="row"><label><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="식재료 이름" size="8" maxlength="20"></label><span class="qa"><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+(i.at?'<small class="at">'+atStr(i.at)+'</small>':'')+'</span>'+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
+      return '<li class="row"'+(i.by?' data-by="'+esc(i.by)+'" title="'+esc(i.by)+'"':'')+'><label><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="식재료 이름" size="8" maxlength="20"></label><span class="qa"><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+atHtml(i)+'</span>'+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
     }).join("")+"</ul>";
     html+="</div>";B[s]=html;
   });
@@ -570,8 +591,8 @@ function fitInput(el){
   var size=parseFloat(getComputedStyle(el).fontSize);
   while(el.scrollWidth>el.clientWidth+1&&size>10){size-=0.5;el.style.fontSize=size+"px"}
 }
-var PEMJ={"엘리자벳":"👩","신수":"👩","크리티컬":"👨","루크":"👨"};
-function chipBtn(v,t){return '<button class="chip'+(v==="all"||v==="t"?' cg-h':'')+'" aria-pressed="'+(pf===v)+'" data-v="'+v+'">'+chipInner(t)+'</button>'}
+var PEMJ={"엘리자벳":"👩","신수":"👩‍🦰","크리티컬":"👨","루크":"👱‍♂️"};
+function chipBtn(v,t){return '<button class="chip'+(v==="all"||v==="t"?' cg-h':'')+'" aria-pressed="'+(pf===v)+'" data-v="'+v+'"'+(v.indexOf("t:")===0?' data-p="'+v.slice(2)+'"':'')+'>'+chipInner(t)+'</button>'}
 function prepChips(){
   var el=$("prepChips");
   var foods=[["f","🧊 냉동 식재료"],["c","🥬 냉장 식재료"],["r","🍞 실온 식재료"],["b","🥗 반찬"],["s","🍪 간식"],["m","🧂 조미료"]];
@@ -583,6 +604,11 @@ function fitAll(){document.querySelectorAll(".ne,.qe,.sec .nm,.cl,#rTitle,#subt"
 function chipInner(t){var i=t.indexOf(" ");return i<0?'<span class="cl">'+t+'</span>':'<span class="ce">'+t.slice(0,i)+'</span><span class="cl">'+t.slice(i+1)+'</span>'}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitAll);
 window.addEventListener("load",fitAll);
+function atHtml(i){
+  if(!i.at&&!i.exp)return "";
+  return '<small class="at">'+(i.exp?'<span class="ex">유통기한 '+esc(i.exp)+'</span>':'')+(i.at?'<span class="ts">'+atStr(i.at)+'</span>':'')+'</small>';
+}
+function validDate(v){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v);if(!m)return false;var d=new Date(+m[1],+m[2]-1,+m[3]);return d.getFullYear()==+m[1]&&d.getMonth()==+m[2]-1&&d.getDate()==+m[3]}
 var curMax=20;
 function nmSize(n){return n.length>16?".78em":n.length>12?".88em":"1em"}
 window.addEventListener("resize",fitAll);
@@ -600,18 +626,24 @@ function openDlg(s,who){
   $("dName").value="";$("dQty").value="";$("dErr").hidden=true;$("dEmo").textContent=META[s]?META[s][2]:"🍽️";
   $("dDate").value=d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate());
   $("dTime").value=two(d.getHours())+":"+two(d.getMinutes());
-  $("dlg").hidden=false;curMax=20;$("dName").maxLength=curMax;$("dName").style.fontSize="";$("dCnt").textContent="0/"+curMax;$("dName").focus();
+  $("dlg").hidden=false;curMax=20;$("dCatWrap").hidden=!who;$("dCat").value="";$("dExpWrap").hidden=!who;$("dExp").value="";$("dName").maxLength=curMax;$("dName").style.fontSize="";$("dCnt").textContent="0/"+curMax;$("dName").focus();
 }
 function closeDlg(){$("dlg").hidden=true;curCat=null}
 function saveDlg(){
   var n=$("dName").value.trim().slice(0,curMax),q=$("dQty").value.trim();
-  if(!n||!q){$("dErr").hidden=false;(n?$("dQty"):$("dName")).focus();return}
+  if(!n||!q){$("dErr").textContent="이름과 수량을 모두 입력해 주세요.";$("dErr").hidden=false;(n?$("dQty"):$("dName")).focus();return}
+  var ex=curCat==="t"?$("dExp").value.trim():"";
+  if(ex&&!validDate(ex)){$("dErr").textContent="유통기한은 2026-11-16 형식으로 입력해 주세요.";$("dErr").hidden=false;$("dExp").focus();return}
   var it={id:uid(),n:n,s:curCat,p:0,u:"",f:q,d:false,at:new Date().toISOString()};
   if(curCat==="t")it.o=curOwn;
+  if(ex)it.exp=ex;
   S.prep.push(it);
+  var cat=(curCat==="t")?$("dCat").value:"";
+  if(cat){var cp={id:uid(),n:n,s:cat,p:0,u:"",f:q,d:false,at:it.at,by:curOwn};if(ex)cp.exp=ex;S.prep.push(cp)}
   save();closeDlg();renderPrep();
 }
 $("dOk").onclick=saveDlg;$("dCancel").onclick=closeDlg;
+$("dExp").oninput=function(){var d=this.value.replace(/\D/g,"").slice(0,8);var o=d.slice(0,4);if(d.length>4)o+="-"+d.slice(4,6);if(d.length>6)o+="-"+d.slice(6,8);this.value=o};
 $("dName").oninput=function(){var v=this.value.trim();$("dEmo").textContent=emo(v,curCat||"c");$("dCnt").textContent=this.value.length+"/"+curMax;fitInput(this)};
 $("dlg").addEventListener("click",function(e){if(e.target===$("dlg"))closeDlg()});
 $("dlg").addEventListener("keydown",function(e){
