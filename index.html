@@ -272,12 +272,21 @@ li.row[data-by]{background:var(--pi)}
 .dbox select{font:inherit;font-size:1.25rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;width:100%}
 .qa .at,.sec .qa .at{display:flex;justify-content:space-between;gap:8px;padding:0 6px}
 .at .ts{margin-left:auto}
+#prepList .group ul{scrollbar-width:thin;scrollbar-color:var(--muted) var(--line)}
+#prepList .group ul::-webkit-scrollbar{width:9px}
+#prepList .group ul::-webkit-scrollbar-track{background:var(--line);border-radius:5px}
+#prepList .group ul::-webkit-scrollbar-thumb{background:var(--muted);border-radius:5px}
+.gh select.sort{order:3;font:inherit;font-size:.85rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px 6px;max-width:100%}
+.gh .plus{order:4}
+.exg{display:flex;align-items:center;gap:4px;font-size:.8rem;color:var(--muted)}
+.xe{font:inherit;font-size:.9rem;width:7.8em;color:var(--ink);background:transparent;border:1px solid transparent;border-bottom:1px dashed var(--line);border-radius:6px;padding:1px 4px}
+.xe:hover,.xe:focus{background:var(--bg);border-color:var(--line)}
 </style>
 </head>
 <body>
 <main>
   <div class="deco" aria-hidden="true"><span>🍙</span><span>🥟</span><span>🍳</span><span>🥗</span><span>🍜</span><span>🍰</span></div>
-  <div class="hrow"><h1>월요매식회 🥢</h1><small class="vtag">Version 8.2</small></div>
+  <div class="hrow"><h1>월요매식회 🥢</h1><small class="vtag">Version 9.0</small></div>
   <p class="sub" id="subt">오늘 점심은 뭘로? 🍴 챙길 것은 쏙쏙, 냉장고 속은 한눈에!</p>
   <p class="sub" id="sync" style="margin-top:-12px;font-size:.85rem">이 기기에만 저장</p>
 
@@ -413,7 +422,9 @@ var RC=[
 ['계란 샌드위치','🥪','8분 · 전자레인지',[['식빵','빵'],['계란','달걀']],['내열 그릇에 계란을 풀고 소금을 넣어 랩을 씌우고 1분 돌린 뒤 저어 30초 더 돌려요','식힌 계란을 마요네즈(있으면)와 섞어요','식빵 사이에 끼워 반으로 잘라요'],'간식'],
 ['참치 샌드위치','🥪','5분 · 불 없이',[['식빵','빵'],['참치'],['?','마요네즈']],['참치의 기름을 빼고 마요네즈(있으면)와 후추를 섞어요','식빵에 올리고 덮어요','반으로 잘라 먹어요'],'간식'],
 ['따뜻한 우유','🥛','2분 · 전자레인지',[['우유'],['?','꿀','설탕']],['내열 컵에 우유를 담아요','전자레인지에 1분~1분 30초 돌려요','꿀이나 설탕을 넣어 저어요'],'음료'],
-['꿀 레몬차','🍋','3분 · 불 없이',[['레몬'],['꿀']],['레몬을 얇게 썰어 컵에 담아요','꿀을 넣고 따뜻한 물을 부어요','잘 저어 우러나게 둬요'],'음료']
+['꿀 레몬차','🍋','3분 · 불 없이',[['레몬'],['꿀']],['레몬을 얇게 썰어 컵에 담아요','꿀을 넣고 따뜻한 물을 부어요','잘 저어 우러나게 둬요'],'음료'],
+['오트밀 우유죽','🥣','4분 · 전자레인지',[['오트밀'],['우유'],['?','꿀','바나나']],['내열 그릇에 오트밀 4큰술과 우유 1컵을 담아요','랩 없이 전자레인지에 2분 30초 돌리고 한 번 저어요','꿀이나 바나나를 올려 먹어요'],'간식'],
+['참치 계란덮밥','🍳','8분 · 전자레인지',[['참치'],['계란','달걀'],['밥']],['참치의 기름을 빼고 내열 그릇에 풀어 둔 계란과 섞어요','랩을 씌워 전자레인지에 1분 30초~2분 돌려요','데운 밥 위에 올리고 간장과 참기름을 둘러요'],'밥']
 ];
 var rOff=0,rSig="",rBatches=[];
 function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
@@ -426,23 +437,29 @@ function makeBatches(arr){
     out.push(b.map(function(k){return left[k]}));
     left=left.filter(function(_,k){return b.indexOf(k)<0});
   }
+  var last=out[out.length-1];
+  if(last&&last.length<3&&arr.length>=3){
+    for(var j=0;j<arr.length&&last.length<3;j++){if(last.indexOf(arr[j])<0)last.push(arr[j])}
+  }
   return out;
 }
 function renderRecipes(){
   var names=S.prep.filter(function(i){return i.s!=="t"}).map(function(i){return i.n});
   function has(ks){return names.some(function(n){return ks.some(function(k){return n.indexOf(k)>-1})})}
-  var list=RC.map(function(r){
+  function cmp(a,b){return (a.miss-b.miss)||(b.c-a.c)||(b.oc-a.oc)||a.r[0].localeCompare(b.r[0])}
+  var all=RC.map(function(r){
     var req=[],opt=[];
     r[3].forEach(function(g){if(g[0]==='?')opt.push(g.slice(1));else req.push(g)});
     var m=req.map(has),c=m.filter(Boolean).length,om=opt.map(has);
     return{r:r,req:req,opt:opt,m:m,om:om,c:c,t:req.length,miss:req.length-c,oc:om.filter(Boolean).length};
-  }).filter(function(x){return x.c>0})
-    .sort(function(a,b){return (a.miss-b.miss)||(b.c-a.c)||(b.oc-a.oc)||a.r[0].localeCompare(b.r[0])});
+  });
+  var list=all.filter(function(x){return x.c>0}).sort(cmp);
   var full=list.filter(function(x){return x.miss===0});
   var pool=full.length>=3?full:list;
+  if(pool.length<3){pool=pool.concat(all.filter(function(x){return pool.indexOf(x)<0}).sort(cmp))}
   var el=$('recipes');
   var head='<div class="rh rr"><h2 id="rTitle">🍳 식재료를 이용한 추천 레시피 3</h2>'+(pool.length>3?'<button class="link" id="rMore">🔄 다른 레시피 보기</button>':'')+'</div>';
-  if(!pool.length){el.innerHTML=head+'<div class="group"><div class="empty" style="border:0">🥕 식재료를 추가하면 추천 레시피가 나타나요!</div></div>';return}
+  if(!names.length||!pool.length){el.innerHTML=head+'<div class="group"><div class="empty" style="border:0">🥕 식재료를 추가하면 추천 레시피가 나타나요!</div></div>';return}
   var sig=pool.map(function(x){return x.r[0]}).join('|');
   if(sig!==rSig){rSig=sig;rOff=0;rBatches=makeBatches(shuffle(pool.slice()))}
   var picks=rBatches[rOff%rBatches.length];
@@ -462,7 +479,7 @@ function peopleHtml(only){
   var cols=NAMES.concat(un?["미정"]:[]);
   if(only)cols=cols.filter(function(n){return n===only});
   return '<div class="pgrid'+(only?' one':'')+'">'+cols.map(function(n){
-    var items=S.prep.filter(function(i){return i.s==="t"&&ownOf(i)===n});
+    var items=sortItems(S.prep.filter(function(i){return i.s==="t"&&ownOf(i)===n}),"reg-desc");
     var d=items.filter(function(i){return i.d}).length;
     var opts=(n==="미정"?["미정"]:[]).concat(NAMES);
     return '<div class="group g-t" data-p="'+n+'"><div class="gh"><h2>'+(n==="미정"?"❓ ":({"엘리자벳":"👩","신수":"👩‍🦰","크리티컬":"👨","루크":"👱‍♂️"}[n]||"🙋")+" ")+n+'</h2><button class="plus" data-padd="'+n+'" aria-label="'+n+' 준비물 추가">+</button><span>'+items.length+'개</span></div>'
@@ -513,18 +530,19 @@ function chips(el,opts,cur,cb){
 function qtyOf(it){return it.p>0?(it.p*S.people)+it.u:it.f}
 
 function renderPrep(){
+  var sc=saveScroll();
   prepChips();
   var html="";B={};
   var pt=(pf==="t"||pf.indexOf("t:")===0);
   ORDER.forEach(function(s){
     if(pf!=="all"&&pf!==s&&!(s==="t"&&pt))return;
     html="";
-    var items=S.prep.filter(function(i){return i.s===s});
+    var items=sortItems(S.prep.filter(function(i){return i.s===s}),SORT[s]||"reg-desc");
     var d=items.filter(function(i){return i.d}).length;
-    html+='<div class="group g-'+s+'"><div class="gh"><h2>'+META[s][2]+' '+META[s][0]+'</h2><button class="plus" data-cadd="'+s+'" aria-label="'+META[s][0]+' 추가">+</button><span>'+items.length+'개</span></div>';
+    html+='<div class="group g-'+s+'" data-k="'+s+'"><div class="gh"><h2>'+META[s][2]+' '+META[s][0]+'</h2><button class="plus" data-cadd="'+s+'" aria-label="'+META[s][0]+' 추가">+</button><span>'+items.length+'개</span>'+sortSel(s)+'</div>';
     if(!items.length)html+='<div class="empty">🫙 텅 비었어요! ➕ 버튼으로 추가해 보세요.</div>';
     else html+="<ul>"+items.map(function(i){
-      return '<li class="row"'+(i.by?' data-by="'+esc(i.by)+'" title="'+esc(i.by)+'"':'')+'><label><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="식재료 이름" size="8" maxlength="20"></label><span class="qa"><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+atHtml(i)+'</span>'+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
+      return '<li class="row"'+(i.by?' data-by="'+esc(i.by)+'" title="'+esc(i.by)+'"':'')+'><label><span class="emo">'+emo(i.n,i.s)+'</span><input class="ne" data-name="'+i.id+'" value="'+esc(i.n)+'" aria-label="식재료 이름" size="8" maxlength="20"></label><span class="qa"><input class="qe" data-qty="'+i.id+'" value="'+esc(qtyOf(i))+'" aria-label="'+esc(i.n)+' 수량" size="6">'+atHtml(i,true)+'</span>'+'<button class="x" data-del="'+i.id+'" aria-label="'+esc(i.n)+' 삭제">×</button></li>';
     }).join("")+"</ul>";
     html+="</div>";B[s]=html;
   });
@@ -534,6 +552,7 @@ function renderPrep(){
   $("recipes").hidden=(pf!=="all");
   renderRecipes();
   fitAll();
+  restoreScroll(sc);
 }
 
 function dday(e){
@@ -575,6 +594,10 @@ $("prepList").addEventListener("click",function(e){
   if(del){S.prep=S.prep.filter(function(i){return i.id!==del.dataset.del});save();renderPrep()}
 });
 $("prepList").addEventListener("change",function(e){
+  var so=e.target.dataset.sort;
+  if(so){SORT[so]=e.target.value;saveSort();renderPrep();return}
+  var xe=e.target.dataset.exp;
+  if(xe){var xv=e.target.value.trim();if(xv&&!validDate(xv)){alert("유통기한은 2026-11-16 형식으로 입력해 주세요.");renderPrep();return}S.prep.forEach(function(i){if(i.id===xe){if(xv)i.exp=xv;else delete i.exp}});save();renderPrep();return}
   var ne=e.target.dataset.name;
   if(ne){var nv=e.target.value.trim();if(!nv){renderPrep();return}S.prep.forEach(function(i){if(i.id===ne)i.n=nv});save();renderPrep();return}
   var qe=e.target.dataset.qty;
@@ -600,19 +623,57 @@ function prepChips(){
     +'<div class="cg">'+chipBtn("t","🥄 준비물")+'<div class="cg-b four">'+NAMES.map(function(n){return chipBtn("t:"+n,(PEMJ[n]||"🙋")+" "+n)}).join("")+'</div></div>';
   Array.prototype.forEach.call(el.querySelectorAll(".chip"),function(b){b.onclick=function(){pf=b.dataset.v;renderPrep()}});
 }
-function fitAll(){document.querySelectorAll(".ne,.qe,.sec .nm,.cl,#rTitle,#subt").forEach(fitInput)}
+function fitAll(){document.querySelectorAll(".ne,.qe,.sec .nm,.cl,#rTitle,#subt").forEach(fitInput);limitLists()}
 function chipInner(t){var i=t.indexOf(" ");return i<0?'<span class="cl">'+t+'</span>':'<span class="ce">'+t.slice(0,i)+'</span><span class="cl">'+t.slice(i+1)+'</span>'}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitAll);
 window.addEventListener("load",fitAll);
-function atHtml(i){
-  if(!i.at&&!i.exp)return "";
-  return '<small class="at">'+(i.exp?'<span class="ex">유통기한 '+esc(i.exp)+'</span>':'')+(i.at?'<span class="ts">'+atStr(i.at)+'</span>':'')+'</small>';
+function atHtml(i,ed){
+  if(!ed&&!i.at&&!i.exp)return "";
+  var l=ed?'<span class="exg"><span>유통기한</span><input class="xe" data-exp="'+i.id+'" value="'+esc(i.exp||"")+'" placeholder="2026-11-16" inputmode="numeric" maxlength="10" aria-label="유통기한"></span>':(i.exp?'<span class="ex">유통기한 '+esc(i.exp)+'</span>':'');
+  return '<small class="at">'+l+(i.at?'<span class="ts">'+atStr(i.at)+'</span>':'')+'</small>';
 }
 function validDate(v){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v);if(!m)return false;var d=new Date(+m[1],+m[2]-1,+m[3]);return d.getFullYear()==+m[1]&&d.getMonth()==+m[2]-1&&d.getDate()==+m[3]}
+var SORT={};try{SORT=JSON.parse(localStorage.getItem(KEY+"-sort"))||{}}catch(e){SORT={}}
+function saveSort(){try{localStorage.setItem(KEY+"-sort",JSON.stringify(SORT))}catch(e){}}
+var SOPTS=[["name-asc","가나다순 오름차순"],["name-desc","가나다순 내림차순"],["exp-asc","유통기한 오름차순"],["exp-desc","유통기한 내림차순"],["reg-asc","등록순 오름차순"],["reg-desc","등록순 내림차순"]];
+function sortSel(s){var cur=SORT[s]||"reg-desc";return '<select class="sort" data-sort="'+s+'" aria-label="정렬">'+SOPTS.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select>'}
+function sortItems(items,mode){
+  var p=(mode||"reg-desc").split("-"),dir=p[1]==="asc"?1:-1;
+  var w=items.map(function(i){return{i:i,k:S.prep.indexOf(i)}});
+  w.sort(function(a,b){
+    var r=0;
+    if(p[0]==="name")r=a.i.n.localeCompare(b.i.n,"ko");
+    else if(p[0]==="exp"){
+      var ea=a.i.exp||"",eb=b.i.exp||"";
+      if(!ea&&!eb)r=0;else if(!ea)return 1;else if(!eb)return -1;else r=ea<eb?-1:(ea>eb?1:0);
+    }else r=a.k-b.k;
+    return (r*dir)||(b.k-a.k);
+  });
+  return w.map(function(x){return x.i});
+}
+var topKeys=[];
+function gkey(g){return g.getAttribute("data-k")||("p:"+g.getAttribute("data-p"))}
+function saveScroll(){var o={};document.querySelectorAll("#prepList .group").forEach(function(g){var u=g.querySelector("ul");if(u)o[gkey(g)]=u.scrollTop});return o}
+function restoreScroll(o){
+  document.querySelectorAll("#prepList .group").forEach(function(g){
+    var u=g.querySelector("ul");if(!u)return;
+    var k=gkey(g);
+    u.scrollTop=(topKeys.indexOf(k)>-1)?0:(o[k]||0);
+  });
+  topKeys=[];
+}
+function limitLists(){
+  document.querySelectorAll("#prepList .group ul").forEach(function(u){
+    u.style.maxHeight="";u.style.overflowY="";
+    var r=u.children;
+    if(r.length>5){var h=0;for(var k=0;k<5;k++)h+=r[k].offsetHeight;u.style.maxHeight=h+"px";u.style.overflowY="auto"}
+  });
+}
+function fmtDate(el){var d=el.value.replace(/\D/g,"").slice(0,8);var o=d.slice(0,4);if(d.length>4)o+="-"+d.slice(4,6);if(d.length>6)o+="-"+d.slice(6,8);el.value=o}
 var curMax=20;
 function nmSize(n){return n.length>16?".78em":n.length>12?".88em":"1em"}
 window.addEventListener("resize",fitAll);
-$("prepList").addEventListener("input",function(e){if(e.target.classList.contains("ne")||e.target.classList.contains("qe"))fitInput(e.target)});
+$("prepList").addEventListener("input",function(e){if(e.target.classList.contains("ne")||e.target.classList.contains("qe"))fitInput(e.target);if(e.target.classList.contains("xe"))fmtDate(e.target)});
 var curCat=null;
 function two(n){return String(n).padStart(2,"0")}
 function atStr(at){if(!at)return"";var d=new Date(at);return (d.getMonth()+1)+"/"+d.getDate()+" "+two(d.getHours())+":"+two(d.getMinutes())}
@@ -626,13 +687,13 @@ function openDlg(s,who){
   $("dName").value="";$("dQty").value="";$("dErr").hidden=true;$("dEmo").textContent=META[s]?META[s][2]:"🍽️";
   $("dDate").value=d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate());
   $("dTime").value=two(d.getHours())+":"+two(d.getMinutes());
-  $("dlg").hidden=false;curMax=20;$("dCatWrap").hidden=!who;$("dCat").value="";$("dExpWrap").hidden=!who;$("dExp").value="";$("dName").maxLength=curMax;$("dName").style.fontSize="";$("dCnt").textContent="0/"+curMax;$("dName").focus();
+  $("dlg").hidden=false;curMax=20;$("dCatWrap").hidden=!who;$("dCat").value="";$("dExpWrap").hidden=false;$("dExp").value="";$("dName").maxLength=curMax;$("dName").style.fontSize="";$("dCnt").textContent="0/"+curMax;$("dName").focus();
 }
 function closeDlg(){$("dlg").hidden=true;curCat=null}
 function saveDlg(){
   var n=$("dName").value.trim().slice(0,curMax),q=$("dQty").value.trim();
   if(!n||!q){$("dErr").textContent="이름과 수량을 모두 입력해 주세요.";$("dErr").hidden=false;(n?$("dQty"):$("dName")).focus();return}
-  var ex=curCat==="t"?$("dExp").value.trim():"";
+  var ex=$("dExp").value.trim();
   if(ex&&!validDate(ex)){$("dErr").textContent="유통기한은 2026-11-16 형식으로 입력해 주세요.";$("dErr").hidden=false;$("dExp").focus();return}
   var it={id:uid(),n:n,s:curCat,p:0,u:"",f:q,d:false,at:new Date().toISOString()};
   if(curCat==="t")it.o=curOwn;
@@ -640,6 +701,9 @@ function saveDlg(){
   S.prep.push(it);
   var cat=(curCat==="t")?$("dCat").value:"";
   if(cat){var cp={id:uid(),n:n,s:cat,p:0,u:"",f:q,d:false,at:it.at,by:curOwn};if(ex)cp.exp=ex;S.prep.push(cp)}
+  if(curCat!=="t")SORT[curCat]="reg-desc";
+  if(cat)SORT[cat]="reg-desc";
+  saveSort();topKeys=[curCat==="t"?"p:"+curOwn:curCat].concat(cat?[cat]:[]);
   save();closeDlg();renderPrep();
 }
 $("dOk").onclick=saveDlg;$("dCancel").onclick=closeDlg;
