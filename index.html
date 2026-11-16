@@ -288,21 +288,40 @@ li.row[data-by]{background:var(--pi)}
 #tmText{width:100%;font:inherit;font-size:1.15rem;line-height:1.4;color:var(--ink);background:light-dark(rgba(255,255,255,.75),rgba(0,0,0,.25));border:2px dashed var(--mb);border-radius:16px;padding:10px 12px;resize:vertical;min-height:4.6em}
 #tmText:focus{outline:none;border-style:solid}
 .tm-f{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:.8rem;color:var(--muted)}
+.tmwrap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 20px}
+.tm{margin:0;padding:12px}
+.tm-today{--m1:light-dark(#FFE9C7,#4A3418);--m2:light-dark(#FFD8D0,#4A2A24);--mb:light-dark(#F4B97A,#8A5A2A)}
+.tm-h{justify-content:flex-start;flex-wrap:wrap;gap:2px 8px}
+.tm-h h2{font-size:1.15rem}
+.tm-d{font-size:.85rem}
+#tdText{width:100%;font:inherit;line-height:1.4;color:var(--ink);background:light-dark(rgba(255,255,255,.75),rgba(0,0,0,.25));border:2px dashed var(--mb);border-radius:16px;resize:vertical}
+#tdText:focus{outline:none;border-style:solid}
+#tmText,#tdText{font-size:1.02rem;padding:8px 10px;min-height:5.6em}
+.eb{font:inherit;font-size:.78rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:1px 8px;cursor:pointer}
+.exg{gap:8px}
+.okbtn.txt{font-size:1.25rem}
 </style>
 </head>
 <body>
 <main>
   <div class="deco" aria-hidden="true"><span>🍙</span><span>🥟</span><span>🍳</span><span>🥗</span><span>🍜</span><span>🍰</span></div>
-  <div class="hrow"><h1>월요매식회 🥢</h1><small class="vtag">Version 9.1</small></div>
+  <div class="hrow"><h1>월요매식회 🥢</h1><small class="vtag">Version 10.1</small></div>
   <p class="sub" id="subt">오늘 점심은 뭘로? 🍴 챙길 것은 쏙쏙, 냉장고 속은 한눈에!</p>
   <p class="sub" id="sync" style="margin-top:-12px;font-size:.85rem">이 기기에만 저장</p>
 
   <section id="prepView">
     <div class="chips" id="prepChips"></div>
-    <section id="tomorrow" class="tm">
-      <div class="tm-h"><h2 id="tmTitle">🍋 내일의 메뉴</h2><span id="tmDate" class="tm-d"></span></div>
-      <textarea id="tmText" rows="3" maxlength="120" placeholder="예: 닭가슴살 샐러드 + 레몬에이드 🍋" aria-label="내일의 메뉴"></textarea>
-      <div class="tm-f"><span id="tmMeta"></span><span id="tmCnt">0/120</span></div>
+    <section id="tomorrow" class="tmwrap">
+      <div class="tm tm-today">
+        <div class="tm-h"><h2>☀️ 오늘의 메뉴</h2><span id="tdDate" class="tm-d"></span></div>
+        <textarea id="tdText" rows="4" maxlength="120" placeholder="예: 비빔밥 + 미역국" aria-label="오늘의 메뉴"></textarea>
+        <div class="tm-f"><span id="tdMeta"></span><span id="tdCnt">0/120</span></div>
+      </div>
+      <div class="tm">
+        <div class="tm-h"><h2>🍋 내일의 메뉴</h2><span id="tmDate" class="tm-d"></span></div>
+        <textarea id="tmText" rows="4" maxlength="120" placeholder="예: 닭가슴살 샐러드 + 레몬에이드 🍋" aria-label="내일의 메뉴"></textarea>
+        <div class="tm-f"><span id="tmMeta"></span><span id="tmCnt">0/120</span></div>
+      </div>
     </section>
     <section id="recipes"></section>
     <div id="prepList"></div>
@@ -382,7 +401,7 @@ function migrate2(s){
   return true;
 }
 if(!S||!S.prep||!S.fridge)S=defaults();
-if(!S.menu)S.menu={t:"",for:"",at:""};
+if(!S.menus){S.menus=legacyMenus(S.menu);delete S.menu}
 if(migrate(S))save();
 var DB=null,docRef=null,timer=null,dirty=false;
 function setSync(t){var e=document.getElementById("sync");if(e)e.textContent=t}
@@ -391,7 +410,7 @@ function save(){
   if(!docRef)return;
   dirty=true;clearTimeout(timer);
   timer=setTimeout(function(){
-    docRef.set({people:S.people,prep:S.prep,fridge:S.fridge,v:S.v,menu:S.menu||{t:"",for:"",at:""}}).then(function(){dirty=false;setSync("모든 기기와 동기화됨")},function(){dirty=false;setSync("동기화 실패 · 이 기기에만 저장됨")});
+    docRef.set({people:S.people,prep:S.prep,fridge:S.fridge,v:S.v,menus:S.menus||{}}).then(function(){dirty=false;setSync("모든 기기와 동기화됨")},function(){dirty=false;setSync("동기화 실패 · 이 기기에만 저장됨")});
   },400);
 }
 
@@ -601,6 +620,8 @@ function show(){renderPrep()}
 
 
 $("prepList").addEventListener("click",function(e){
+  var eb=e.target.closest("[data-edit]");
+  if(eb){openEdit(eb.dataset.edit);return}
   var pa=e.target.closest("[data-padd]");
   if(pa){openDlg("t",pa.dataset.padd);return}
   var ca=e.target.closest("[data-cadd]");
@@ -642,10 +663,8 @@ function fitAll(){document.querySelectorAll(".ne,.qe,.sec .nm,.cl,#rTitle,#subt"
 function chipInner(t){var i=t.indexOf(" ");return i<0?'<span class="cl">'+t+'</span>':'<span class="ce">'+t.slice(0,i)+'</span><span class="cl">'+t.slice(i+1)+'</span>'}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitAll);
 window.addEventListener("load",fitAll);
-function atHtml(i,ed){
-  if(!ed&&!i.at&&!i.exp)return "";
-  var l=ed?'<span class="exg"><span>유통기한</span><input class="xe" data-exp="'+i.id+'" value="'+esc(i.exp||"")+'" placeholder="2026-11-16" inputmode="numeric" maxlength="10" aria-label="유통기한"></span>':(i.exp?'<span class="ex">유통기한 '+esc(i.exp)+'</span>':'');
-  return '<small class="at">'+l+(i.at?'<span class="ts">'+atStr(i.at)+'</span>':'')+'</small>';
+function atHtml(i){
+  return '<small class="at"><span class="exg"><button class="eb" data-edit="'+i.id+'" aria-label="'+esc(i.n)+' 수정">✏️ 수정</button>'+(i.exp?'<span class="ex">유통기한 '+esc(i.exp)+'</span>':'')+'</span>'+(i.at?'<span class="ts">'+atStr(i.at)+'</span>':'')+'</small>';
 }
 function validDate(v){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v);if(!m)return false;var d=new Date(+m[1],+m[2]-1,+m[3]);return d.getFullYear()==+m[1]&&d.getMonth()==+m[2]-1&&d.getDate()==+m[3]}
 var SORT={};try{SORT=JSON.parse(localStorage.getItem(KEY+"-sort"))||{}}catch(e){SORT={}}
@@ -687,40 +706,65 @@ function limitLists(){
 function fmtDate(el){var d=el.value.replace(/\D/g,"").slice(0,8);var o=d.slice(0,4);if(d.length>4)o+="-"+d.slice(4,6);if(d.length>6)o+="-"+d.slice(6,8);el.value=o}
 function ymdL(d){return d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate())}
 var WD=["일","월","화","수","목","금","토"];
-var tmTimer=null;
+var MB=[{k:"td",off:0},{k:"tm",off:1}];
+var mTimers={};
+function dayKey(off){var n=new Date();return ymdL(new Date(n.getFullYear(),n.getMonth(),n.getDate()+off))}
+function legacyMenus(m){var o={};if(m&&m.t&&m.for)o[m.for]={t:m.t,at:m.at||""};return o}
 function renderMenu(){
-  var now=new Date(),tm=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
-  var today=ymdL(now),tomorrow=ymdL(tm),m=S.menu||{t:"",for:"",at:""};
-  var show=!!(m.for&&m.for>=today);
-  var f=show?m.for:tomorrow;
-  var fd=new Date(+f.slice(0,4),+f.slice(5,7)-1,+f.slice(8,10));
-  var label=f===tomorrow?"내일":(f===today?"오늘":(fd.getMonth()+1)+"/"+fd.getDate());
-  $("tmTitle").textContent="🍋 "+label+"의 메뉴";
-  $("tmDate").textContent=(fd.getMonth()+1)+"/"+fd.getDate()+" ("+WD[fd.getDay()]+")";
-  var ta=$("tmText");
-  if(document.activeElement!==ta)ta.value=show?m.t:"";
-  $("tmCnt").textContent=ta.value.length+"/120";
-  $("tmMeta").textContent=(show&&m.at)?"마지막 수정 "+atStr(m.at):"";
+  var M=S.menus||{};
+  MB.forEach(function(b){
+    var key=dayKey(b.off),e=M[key]||{t:"",at:""};
+    var d=new Date(+key.slice(0,4),+key.slice(5,7)-1,+key.slice(8,10));
+    $(b.k+"Date").textContent=(d.getMonth()+1)+"/"+d.getDate()+" ("+WD[d.getDay()]+")";
+    var ta=$(b.k+"Text");
+    if(document.activeElement!==ta)ta.value=e.t||"";
+    $(b.k+"Cnt").textContent=ta.value.length+"/120";
+    $(b.k+"Meta").textContent=e.at?"수정 "+atStr(e.at):"";
+  });
 }
-function saveMenu(){
-  clearTimeout(tmTimer);
-  var ta=$("tmText"),now=new Date(),tm=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
-  var cur=S.menu||{t:"",for:"",at:""};
-  var f=(cur.for&&cur.for>=ymdL(now))?cur.for:ymdL(tm);
-  S.menu={t:ta.value.slice(0,120),for:f,at:new Date().toISOString()};
+function saveMenu(b){
+  clearTimeout(mTimers[b.k]);
+  var ta=$(b.k+"Text"),key=dayKey(b.off);
+  if(!S.menus)S.menus={};
+  S.menus[key]={t:ta.value.slice(0,120),at:new Date().toISOString()};
+  var today=dayKey(0);Object.keys(S.menus).forEach(function(k){if(k<today)delete S.menus[k]});
   save();renderMenu();
 }
-$("tmText").addEventListener("input",function(){$("tmCnt").textContent=this.value.length+"/120";clearTimeout(tmTimer);tmTimer=setTimeout(saveMenu,900)});
-$("tmText").addEventListener("change",saveMenu);
+MB.forEach(function(b){
+  $(b.k+"Text").addEventListener("input",function(){$(b.k+"Cnt").textContent=this.value.length+"/120";clearTimeout(mTimers[b.k]);mTimers[b.k]=setTimeout(function(){saveMenu(b)},900)});
+  $(b.k+"Text").addEventListener("change",function(){saveMenu(b)});
+});
+function schedMidnight(){var n=new Date(),m=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1,0,0,1);setTimeout(function(){renderMenu();schedMidnight()},m-n)}
+schedMidnight();
+document.addEventListener("visibilitychange",function(){if(!document.hidden)renderMenu()});
 var curMax=20;
 function nmSize(n){return n.length>16?".78em":n.length>12?".88em":"1em"}
 window.addEventListener("resize",fitAll);
 $("prepList").addEventListener("input",function(e){if(e.target.classList.contains("ne")||e.target.classList.contains("qe"))fitInput(e.target);if(e.target.classList.contains("xe"))fmtDate(e.target)});
+var editId=null;
+function openEdit(id){
+  var it=null;S.prep.forEach(function(i){if(i.id===id)it=i});if(!it)return;
+  editId=id;curCat=it.s;curOwn=it.o||"";curMax=20;
+  var who=it.s==="t";
+  $("dTitle").textContent="✏️ "+(who?"준비물":"식재료")+" 수정";
+  $("dNameL").textContent=who?"준비물 이름":"식재료 이름";
+  $("dName").value=it.n;$("dName").maxLength=20;$("dName").style.fontSize="";
+  $("dQty").value=qtyOf(it);
+  $("dCatWrap").hidden=!who;$("dCat").value="";$("dExpWrap").hidden=false;$("dExp").value=it.exp||"";
+  var d=it.at?new Date(it.at):new Date();
+  $("dDate").value=d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate());
+  $("dTime").value=two(d.getHours())+":"+two(d.getMinutes());
+  $("dCnt").textContent=it.n.length+"/20";$("dEmo").textContent=emo(it.n,it.s);
+  $("dErr").hidden=true;
+  $("dOk").textContent="+";$("dOk").classList.remove("txt");$("dOk").setAttribute("aria-label","저장");
+  $("dlg").hidden=false;fitInput($("dName"));$("dName").focus();
+}
 var curCat=null;
 function two(n){return String(n).padStart(2,"0")}
 function atStr(at){if(!at)return"";var d=new Date(at);return (d.getMonth()+1)+"/"+d.getDate()+" "+two(d.getHours())+":"+two(d.getMinutes())}
 var curOwn="";
 function openDlg(s,who){
+  editId=null;$("dOk").textContent="+";$("dOk").classList.remove("txt");$("dOk").setAttribute("aria-label","추가");
   curCat=s;curOwn=who||"";
   $("dNameL").textContent=who?"준비물 이름":"식재료 이름";
   $("dName").placeholder=who?"예: 수저":"예: 삼겹살";
@@ -731,12 +775,19 @@ function openDlg(s,who){
   $("dTime").value=two(d.getHours())+":"+two(d.getMinutes());
   $("dlg").hidden=false;curMax=20;$("dCatWrap").hidden=!who;$("dCat").value="";$("dExpWrap").hidden=false;$("dExp").value="";$("dName").maxLength=curMax;$("dName").style.fontSize="";$("dCnt").textContent="0/"+curMax;$("dName").focus();
 }
-function closeDlg(){$("dlg").hidden=true;curCat=null}
+function closeDlg(){$("dlg").hidden=true;curCat=null;editId=null}
 function saveDlg(){
   var n=$("dName").value.trim().slice(0,curMax),q=$("dQty").value.trim();
   if(!n||!q){$("dErr").textContent="이름과 수량을 모두 입력해 주세요.";$("dErr").hidden=false;(n?$("dQty"):$("dName")).focus();return}
   var ex=$("dExp").value.trim();
   if(ex&&!validDate(ex)){$("dErr").textContent="유통기한은 2026-11-16 형식으로 입력해 주세요.";$("dErr").hidden=false;$("dExp").focus();return}
+  if(editId){
+    var eat=null,eowner=curOwn;
+    S.prep.forEach(function(i){if(i.id===editId){i.n=n;i.p=0;i.f=q;if(ex)i.exp=ex;else delete i.exp;if(!i.at)i.at=new Date().toISOString();eat=i.at}});
+    var ecat=(curCat==="t")?$("dCat").value:"";
+    if(ecat){var ecp={id:uid(),n:n,s:ecat,p:0,u:"",f:q,d:false,at:eat||new Date().toISOString(),by:eowner};if(ex)ecp.exp=ex;S.prep.push(ecp);SORT[ecat]="reg-desc";saveSort();topKeys=[ecat]}
+    save();closeDlg();renderPrep();return;
+  }
   var it={id:uid(),n:n,s:curCat,p:0,u:"",f:q,d:false,at:new Date().toISOString()};
   if(curCat==="t")it.o=curOwn;
   if(ex)it.exp=ex;
@@ -781,7 +832,7 @@ var ROOM="7qnbfb1663pdx6178jrihu3xjf1m8kyb";
       if(!snap.exists){save();return}
       var d=snap.data();
       if(!d||!d.prep||!d.fridge)return;
-      var next=JSON.parse(JSON.stringify({people:d.people||4,prep:d.prep,fridge:d.fridge,v:d.v,menu:d.menu||{t:"",for:"",at:""}}));var chg=migrate(next);
+      var next=JSON.parse(JSON.stringify({people:d.people||4,prep:d.prep,fridge:d.fridge,v:d.v,menus:d.menus||legacyMenus(d.menu)}));var chg=migrate(next);
       if(JSON.stringify(next)===JSON.stringify(S))return;
       S=next;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(chg)save();
       show(tab);
