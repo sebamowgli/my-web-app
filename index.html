@@ -300,6 +300,7 @@ li.row[data-by]{background:var(--pi)}
 .eb{font:inherit;font-size:.78rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:1px 8px;cursor:pointer}
 .exg{gap:8px}
 .okbtn.txt{font-size:1.25rem}
+.nr{font-size:.75rem;padding:1px 8px;border-radius:999px;background:var(--warn-bg);color:var(--warn);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -410,7 +411,7 @@ function save(){
   if(!docRef)return;
   dirty=true;clearTimeout(timer);
   timer=setTimeout(function(){
-    docRef.set({people:S.people,prep:S.prep,fridge:S.fridge,v:S.v,menus:S.menus||{}}).then(function(){dirty=false;setSync("모든 기기와 동기화됨")},function(){dirty=false;setSync("동기화 실패 · 이 기기에만 저장됨")});
+    docRef.set({people:S.people,prep:S.prep,fridge:S.fridge,v:S.v,menus:S.menus||{}},{merge:true}).then(function(){dirty=false;setSync("모든 기기와 동기화됨")},function(){dirty=false;setSync("동기화 실패 · 이 기기에만 저장됨")});
   },400);
 }
 
@@ -664,7 +665,7 @@ function chipInner(t){var i=t.indexOf(" ");return i<0?'<span class="cl">'+t+'</s
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitAll);
 window.addEventListener("load",fitAll);
 function atHtml(i){
-  return '<small class="at"><span class="exg"><button class="eb" data-edit="'+i.id+'" aria-label="'+esc(i.n)+' 수정">✏️ 수정</button>'+(i.exp?'<span class="ex">유통기한 '+esc(i.exp)+'</span>':'')+'</span>'+(i.at?'<span class="ts">'+atStr(i.at)+'</span>':'')+'</small>';
+  return '<small class="at"><span class="exg"><button class="eb" data-edit="'+i.id+'" aria-label="'+esc(i.n)+' 수정">✏️ 수정</button>'+(i.nr?'<span class="nr">미등록</span>':'')+(i.exp?'<span class="ex">유통기한 '+esc(i.exp)+'</span>':'')+'</span>'+(i.at?'<span class="ts">'+atStr(i.at)+'</span>':'')+'</small>';
 }
 function validDate(v){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v);if(!m)return false;var d=new Date(+m[1],+m[2]-1,+m[3]);return d.getFullYear()==+m[1]&&d.getMonth()==+m[2]-1&&d.getDate()==+m[3]}
 var SORT={};try{SORT=JSON.parse(localStorage.getItem(KEY+"-sort"))||{}}catch(e){SORT={}}
@@ -707,10 +708,30 @@ function fmtDate(el){var d=el.value.replace(/\D/g,"").slice(0,8);var o=d.slice(0
 function ymdL(d){return d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate())}
 var WD=["일","월","화","수","목","금","토"];
 var MB=[{k:"td",off:0},{k:"tm",off:1}];
-var mTimers={};
+var mTimers={},mPend={};
 function dayKey(off){var n=new Date();return ymdL(new Date(n.getFullYear(),n.getMonth(),n.getDate()+off))}
 function legacyMenus(m){var o={};if(m&&m.t&&m.for)o[m.for]={t:m.t,at:m.at||""};return o}
+function mergeMenus(a,b){
+  var o={},today=dayKey(0);
+  [a||{},b||{}].forEach(function(M){Object.keys(M).forEach(function(k){
+    if(k<today)return;
+    var e=M[k];if(!e||typeof e!=="object")return;
+    if(!o[k]||(e.at||"")>(o[k].at||""))o[k]={t:e.t||"",at:e.at||""};
+  })});
+  return o;
+}
+function pruneMenus(){
+  if(!S.menus)return;
+  var today=dayKey(0),rm=[];
+  Object.keys(S.menus).forEach(function(k){if(k<today){rm.push(k);delete S.menus[k]}});
+  if(!rm.length)return;
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  if(docRef&&window.firebase&&firebase.firestore&&firebase.firestore.FieldPath){
+    rm.forEach(function(k){try{docRef.update(new firebase.firestore.FieldPath("menus",k),firebase.firestore.FieldValue.delete()).catch(function(){})}catch(e){}});
+  }
+}
 function renderMenu(){
+  pruneMenus();
   var M=S.menus||{};
   MB.forEach(function(b){
     var key=dayKey(b.off),e=M[key]||{t:"",at:""};
@@ -723,20 +744,21 @@ function renderMenu(){
   });
 }
 function saveMenu(b){
-  clearTimeout(mTimers[b.k]);
+  clearTimeout(mTimers[b.k]);mPend[b.k]=false;
   var ta=$(b.k+"Text"),key=dayKey(b.off);
   if(!S.menus)S.menus={};
   S.menus[key]={t:ta.value.slice(0,120),at:new Date().toISOString()};
-  var today=dayKey(0);Object.keys(S.menus).forEach(function(k){if(k<today)delete S.menus[k]});
   save();renderMenu();
 }
+function flushMenus(){MB.forEach(function(b){if(mPend[b.k])saveMenu(b)})}
 MB.forEach(function(b){
-  $(b.k+"Text").addEventListener("input",function(){$(b.k+"Cnt").textContent=this.value.length+"/120";clearTimeout(mTimers[b.k]);mTimers[b.k]=setTimeout(function(){saveMenu(b)},900)});
+  $(b.k+"Text").addEventListener("input",function(){mPend[b.k]=true;$(b.k+"Cnt").textContent=this.value.length+"/120";clearTimeout(mTimers[b.k]);mTimers[b.k]=setTimeout(function(){saveMenu(b)},900)});
   $(b.k+"Text").addEventListener("change",function(){saveMenu(b)});
 });
 function schedMidnight(){var n=new Date(),m=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1,0,0,1);setTimeout(function(){renderMenu();schedMidnight()},m-n)}
 schedMidnight();
-document.addEventListener("visibilitychange",function(){if(!document.hidden)renderMenu()});
+document.addEventListener("visibilitychange",function(){if(document.hidden)flushMenus();else renderMenu()});
+window.addEventListener("pagehide",flushMenus);
 var curMax=20;
 function nmSize(n){return n.length>16?".78em":n.length>12?".88em":"1em"}
 window.addEventListener("resize",fitAll);
@@ -783,8 +805,8 @@ function saveDlg(){
   if(ex&&!validDate(ex)){$("dErr").textContent="유통기한은 2026-11-16 형식으로 입력해 주세요.";$("dErr").hidden=false;$("dExp").focus();return}
   if(editId){
     var eat=null,eowner=curOwn;
-    S.prep.forEach(function(i){if(i.id===editId){i.n=n;i.p=0;i.f=q;if(ex)i.exp=ex;else delete i.exp;if(!i.at)i.at=new Date().toISOString();eat=i.at}});
     var ecat=(curCat==="t")?$("dCat").value:"";
+    S.prep.forEach(function(i){if(i.id===editId){i.n=n;i.p=0;i.f=q;if(ex)i.exp=ex;else delete i.exp;if(!i.at)i.at=new Date().toISOString();if(ecat)delete i.nr;eat=i.at}});
     if(ecat){var ecp={id:uid(),n:n,s:ecat,p:0,u:"",f:q,d:false,at:eat||new Date().toISOString(),by:eowner};if(ex)ecp.exp=ex;S.prep.push(ecp);SORT[ecat]="reg-desc";saveSort();topKeys=[ecat]}
     save();closeDlg();renderPrep();return;
   }
@@ -793,6 +815,7 @@ function saveDlg(){
   if(ex)it.exp=ex;
   S.prep.push(it);
   var cat=(curCat==="t")?$("dCat").value:"";
+  if(curCat==="t"&&!cat)it.nr=1;
   if(cat){var cp={id:uid(),n:n,s:cat,p:0,u:"",f:q,d:false,at:it.at,by:curOwn};if(ex)cp.exp=ex;S.prep.push(cp)}
   if(curCat!=="t")SORT[curCat]="reg-desc";
   if(cat)SORT[cat]="reg-desc";
@@ -832,7 +855,7 @@ var ROOM="7qnbfb1663pdx6178jrihu3xjf1m8kyb";
       if(!snap.exists){save();return}
       var d=snap.data();
       if(!d||!d.prep||!d.fridge)return;
-      var next=JSON.parse(JSON.stringify({people:d.people||4,prep:d.prep,fridge:d.fridge,v:d.v,menus:d.menus||legacyMenus(d.menu)}));var chg=migrate(next);
+      var next=JSON.parse(JSON.stringify({people:d.people||4,prep:d.prep,fridge:d.fridge,v:d.v,menus:mergeMenus(S.menus,d.menus||legacyMenus(d.menu))}));var chg=migrate(next);
       if(JSON.stringify(next)===JSON.stringify(S))return;
       S=next;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(chg)save();
       show(tab);
